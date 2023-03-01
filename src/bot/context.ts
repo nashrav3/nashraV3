@@ -5,6 +5,7 @@ import type { Container } from "~/container";
 import { Logger } from "~/logger";
 
 import { AutoChatActionFlavor } from "@grammyjs/auto-chat-action";
+import { ConversationFlavor } from "@grammyjs/conversations";
 import { HydrateFlavor } from "@grammyjs/hydrate";
 import { I18nFlavor } from "@grammyjs/i18n";
 import { ParseModeFlavor } from "@grammyjs/parse-mode";
@@ -41,7 +42,8 @@ export type Context = ParseModeFlavor<
       ExtendedContextFlavor &
       SessionFlavor<SessionData> &
       I18nFlavor &
-      AutoChatActionFlavor
+      AutoChatActionFlavor &
+      ConversationFlavor
   >
 >;
 
@@ -57,6 +59,16 @@ export function createContextConstructor(container: Container) {
 
     constructor(update: Update, api: Api, me: UserFromGetMe) {
       super(update, api, me);
+
+      Object.defineProperty(this, "container", {
+        writable: true,
+      });
+      Object.defineProperty(this, "prisma", {
+        writable: true,
+      });
+      Object.defineProperty(this, "logger", {
+        writable: true,
+      });
 
       this.container = container;
       this.prisma = container.prisma;

@@ -6,8 +6,8 @@ const composer = new Composer<Context>();
 
 const feature = composer.chatType("private");
 
-feature.command("start", logHandle("command-start"), (ctx) =>
-  ctx.reply(ctx.t("welcome"))
-);
+feature.command("start", logHandle("command-start"), async (ctx) => {
+  await ctx.conversation.enter("greeting");
+});
 
 export { composer as welcomeFeature };

@@ -1,8 +1,10 @@
 import { autoChatAction } from "@grammyjs/auto-chat-action";
+import { conversations } from "@grammyjs/conversations";
 import { hydrate } from "@grammyjs/hydrate";
 import { hydrateReply, parseMode } from "@grammyjs/parse-mode";
 import { BotConfig, StorageAdapter, Bot as TelegramBot } from "grammy";
 import { Context, createContextConstructor } from "~/bot/context";
+import { greetingConversation } from "~/bot/conversations";
 import {
   botAdminFeature,
   languageFeature,
@@ -45,12 +47,14 @@ export const createBot = (
   }
 
   bot.use(metrics());
-  bot.use(autoChatAction());
+  bot.use(autoChatAction(bot.api));
   bot.use(hydrateReply);
   bot.use(hydrate());
   bot.use(session(sessionStorage));
   bot.use(setScope());
   bot.use(i18n());
+  bot.use(conversations());
+  bot.use(greetingConversation(container));
 
   // Handlers
 

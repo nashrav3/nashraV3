@@ -31,6 +31,18 @@
         "import/extensions": "off",
         "no-underscore-dangle": "off"
     },
+    "overrides": [
+        {
+            "files": ["src/bot/conversations/*"],
+            "rules": {
+                "no-loop-func": "off",
+                "no-await-in-loop": "off",
+                "no-param-reassign": "off",
+                "no-continue": "off",
+                "no-constant-condition": "off"
+            }
+        }
+    ],
     "settings": {
         "import/parsers": {
             "@typescript-eslint/parser": [".ts"]
