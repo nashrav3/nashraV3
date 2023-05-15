@@ -1,8 +1,10 @@
 #!/usr/bin/env tsx
 import { RedisAdapter } from "@grammyjs/storage-redis";
 import { Role } from "@prisma/client";
+import { Job, Worker } from "bullmq";
 import { createBot } from "~/bot";
 import { createAppContainer } from "~/container";
+import { createGreetingWorker } from "~/queues";
 import { createServer } from "~/server";
 
 const container = createAppContainer();
@@ -19,15 +21,37 @@ try {
 
   const server = await createServer(bot, container);
 
+  const handleWorkerError = (job: Job | undefined, err: Error) => {
+    logger.error({
+      msg: "job failed",
+      job_id: job?.id,
+      job_name: job?.name,
+      queue: job?.queueName,
+      err,
+    });
+  };
+
+  const workers: Worker[] = [];
+
   // Graceful shutdown
   prisma.$on("beforeExit", async () => {
     logger.info("shutdown");
 
+    await Promise.all(workers.map((w) => w.close()));
     await bot.stop();
     await server.close();
   });
 
   await prisma.$connect();
+
+  workers.push(
+    createGreetingWorker({
+      connection: redis,
+      handleError: handleWorkerError,
+      prisma,
+      bot,
+    })
+  );
 
   // update bot owner role
   await prisma.user.upsert({
