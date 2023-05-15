@@ -61,8 +61,8 @@ try {
   workers.push(
     createGreetingWorker({
       connection: redis,
-      prisma,
       handleError: handleWorkerError,
+      prisma,
     })
   );
   // update bot owner role
