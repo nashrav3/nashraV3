@@ -1,0 +1,26 @@
+version: '3'
+services:
+
+  redis:
+    image: redis:7-alpine
+
+  iqdatabot:
+    build:
+      context: .
+    depends_on:
+      - redis
+
+    restart: unless-stopped
+    networks:
+      - default
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.iqdatabot-secure.entrypoints=websecure"
+      - "traefik.http.routers.iqdatabot-secure.rule=Host(`iqdata.teleguid.com`)"
+      - "traefik.http.services.iqdatabot.loadbalancer.server.port=8010"
+
+networks:
+  proxy:
+    external: true

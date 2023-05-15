@@ -1,0 +1,14 @@
+{
+    "image": "mcr.microsoft.com/devcontainers/universal:2",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "GitHub.copilot",
+                "GitHub.copilot-labs",
+                "macabeus.vscode-fluent",
+                "Prisma.prisma",
+                "dbaeumer.vscode-eslint"
+            ]
+        }
+    }
+}

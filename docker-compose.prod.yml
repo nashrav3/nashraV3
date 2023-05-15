@@ -1,0 +1,6 @@
+version: '3'
+services:
+
+  iqdatabot:
+    env_file:
+      - docker-compose.prod.bot.env

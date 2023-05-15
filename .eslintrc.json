@@ -1,0 +1,56 @@
+{
+    "env": {
+        "es2021": true,
+        "node": true
+    },
+    "extends": [
+        "airbnb-base",
+        "eslint:recommended",
+        "plugin:prettier/recommended",
+        "plugin:@typescript-eslint/recommended"
+    ],
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "project": [
+            "tsconfig.json"
+        ]
+    },
+    "plugins": [
+        "@typescript-eslint",
+        "prettier",
+        "import"
+    ],
+    "rules": {
+        "prettier/prettier":[ "error", {
+            "endOfLine": "auto"
+        }],
+        "arrow-body-style": "off",
+        "prefer-arrow-callback": "off",
+        "consistent-return": "off",
+        "import/prefer-default-export": "off",
+        "import/extensions": "off",
+        "no-underscore-dangle": "off"
+    },
+    "overrides": [
+        {
+            "files": ["src/bot/conversations/*"],
+            "rules": {
+                "no-loop-func": "off",
+                "no-await-in-loop": "off",
+                "no-param-reassign": "off",
+                "no-continue": "off",
+                "no-constant-condition": "off"
+            }
+        }
+    ],
+    "settings": {
+        "import/parsers": {
+            "@typescript-eslint/parser": [".ts"]
+        },
+        "import/resolver": {
+            "typescript": {
+                "extensions": [".js", ".ts"]
+            }
+        }
+    }
+}
