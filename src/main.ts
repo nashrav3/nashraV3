@@ -63,6 +63,7 @@ try {
       connection: redis,
       handleError: handleWorkerError,
       prisma,
+      // bots,
     })
   );
   // update bot owner role
