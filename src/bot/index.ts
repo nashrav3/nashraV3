@@ -4,9 +4,12 @@ import { hydrate } from "@grammyjs/hydrate";
 import { hydrateReply, parseMode } from "@grammyjs/parse-mode";
 import { BotConfig, StorageAdapter, Bot as TelegramBot } from "grammy";
 import { Context, createContextConstructor } from "~/bot/context";
+import { createPostConversation } from "~/bot/conversations";
 import {
-  botAdminFeature,
+  addBotFeature,
+  createPostFeature,
   languageFeature,
+  previewPostFeature,
   unhandledFeature,
   welcomeFeature,
 } from "~/bot/features";
@@ -54,11 +57,14 @@ export const createBot = (
   bot.use(setScope());
   bot.use(i18n());
   bot.use(conversations());
+  bot.use(createPostConversation(container));
 
   // Handlers
 
   bot.use(welcomeFeature);
-  bot.use(botAdminFeature);
+  bot.use(addBotFeature);
+  bot.use(previewPostFeature);
+  bot.use(createPostFeature);
   if (isMultipleLocales) {
     bot.use(languageFeature);
   }

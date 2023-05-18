@@ -1,9 +1,10 @@
 import { Job, Queue, Worker } from "bullmq";
 import type Redis from "ioredis";
+import { Context } from "~/bot/context";
 import type { PrismaClientX } from "~/prisma";
 
 export type GreetingData = {
-  chatId: number;
+  ctx: Context;
 };
 
 const queueName = "greeting";
@@ -26,16 +27,8 @@ export function createGreetingWorker({
   return new Worker<GreetingData>(
     queueName,
     async (job) => {
-      const user = await prisma.user.findUniqueOrThrow({
-        where: prisma.user.byTelegramId(job.data.chatId),
-        select: {
-          languageCode: true,
-        },
-      });
-
-      if (user) {
-        console.log("Greeting", job.data.chatId);
-      }
+      const { ctx } = job.data;
+      await ctx.reply("Hello");
     },
     {
       connection,

@@ -63,14 +63,14 @@ try {
       connection: redis,
       handleError: handleWorkerError,
       prisma,
-      // bots,
     })
   );
   // update bot owner role
-  await prisma.user.upsert({
-    where: prisma.user.byTelegramId(config.BOT_ADMIN_USER_ID),
+  await prisma.chat.upsert({
+    where: prisma.chat.byChatId(config.BOT_ADMIN_USER_ID),
     create: {
-      telegramId: config.BOT_ADMIN_USER_ID,
+      chatId: config.BOT_ADMIN_USER_ID,
+      chatType: "private",
       role: Role.OWNER,
     },
     update: {

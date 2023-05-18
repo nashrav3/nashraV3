@@ -1,0 +1,360 @@
+
+{
+  "update_id": 144288905,
+  "message": {
+    "message_id": 886460,
+    "from": {
+      "id": 527340500,
+      "is_bot": false,
+      "first_name": "Abd \u003c _",
+      "last_name": "ᅠᅠᅠᅠ ᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠ",
+      "username": "abdood",
+      "language_code": "en"
+    },
+    "chat": {
+      "id": 527340500,
+      "first_name": "Abd \u003c _",
+      "last_name": "ᅠᅠᅠᅠ ᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠ",
+      "username": "abdood",
+      "type": "private"
+    },
+    "date": 1684307281,
+    "forward_from_chat": {
+      "id": -1001436567805,
+      "title": "°• فَجر الصّحوَة •° 🌿📚",
+      "username": "s7wafgr",
+      "type": "channel"
+    },
+    "forward_from_message_id": 2329,
+    "forward_date": 1679764472,
+    "media_group_id": "13474458252358785",
+    "photo": [
+      {
+        "file_id": "AgACAgQAAxkBAAENhrxkZH1RiroS6KeLg2DS3jT4h_J8FQACCbgxG-uHAAFRenB-5sGM6zEBAAMCAANzAAMvBA",
+        "file_unique_id": "AQADCbgxG-uHAAFReA",
+        "file_size": 932,
+        "width": 57,
+        "height": 90
+      },
+      {
+        "file_id": "AgACAgQAAxkBAAENhrxkZH1RiroS6KeLg2DS3jT4h_J8FQACCbgxG-uHAAFRenB-5sGM6zEBAAMCAANtAAMvBA",
+        "file_unique_id": "AQADCbgxG-uHAAFRcg",
+        "file_size": 14000,
+        "width": 203,
+        "height": 320
+      },
+      {
+        "file_id": "AgACAgQAAxkBAAENhrxkZH1RiroS6KeLg2DS3jT4h_J8FQACCbgxG-uHAAFRenB-5sGM6zEBAAMCAAN4AAMvBA",
+        "file_unique_id": "AQADCbgxG-uHAAFRfQ",
+        "file_size": 66274,
+        "width": 507,
+        "height": 800
+      },
+      {
+        "file_id": "AgACAgQAAxkBAAENhrxkZH1RiroS6KeLg2DS3jT4h_J8FQACCbgxG-uHAAFRenB-5sGM6zEBAAMCAAN5AAMvBA",
+        "file_unique_id": "AQADCbgxG-uHAAFRfg",
+        "file_size": 74800,
+        "width": 720,
+        "height": 1135
+      }
+    ]
+  }
+}
+
+
+{
+  "update_id": 144288906,
+  "message": {
+    "message_id": 886461,
+    "from": {
+      "id": 527340500,
+      "is_bot": false,
+      "first_name": "Abd \u003c _",
+      "last_name": "ᅠᅠᅠᅠ ᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠ",
+      "username": "abdood",
+      "language_code": "en"
+    },
+    "chat": {
+      "id": 527340500,
+      "first_name": "Abd \u003c _",
+      "last_name": "ᅠᅠᅠᅠ ᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠ",
+      "username": "abdood",
+      "type": "private"
+    },
+    "date": 1684307281,
+    "forward_from_chat": {
+      "id": -1001436567805,
+      "title": "°• فَجر الصّحوَة •° 🌿📚",
+      "username": "s7wafgr",
+      "type": "channel"
+    },
+    "forward_from_message_id": 2330,
+    "forward_date": 1679764472,
+    "media_group_id": "13474458252358785",
+    "photo": [
+      {
+        "file_id": "AgACAgQAAxkBAAENhr1kZH1RHlN0kXTDRm1nO-9Ipdb9OAACCLgxG-uHAAFRyr6lDZzi-hYBAAMCAANzAAMvBA",
+        "file_unique_id": "AQADCLgxG-uHAAFReA",
+        "file_size": 699,
+        "width": 54,
+        "height": 90
+      },
+      {
+        "file_id": "AgACAgQAAxkBAAENhr1kZH1RHlN0kXTDRm1nO-9Ipdb9OAACCLgxG-uHAAFRyr6lDZzi-hYBAAMCAANtAAMvBA",
+        "file_unique_id": "AQADCLgxG-uHAAFRcg",
+        "file_size": 9114,
+        "width": 193,
+        "height": 320
+      },
+      {
+        "file_id": "AgACAgQAAxkBAAENhr1kZH1RHlN0kXTDRm1nO-9Ipdb9OAACCLgxG-uHAAFRyr6lDZzi-hYBAAMCAAN4AAMvBA",
+        "file_unique_id": "AQADCLgxG-uHAAFRfQ",
+        "file_size": 43813,
+        "width": 482,
+        "height": 800
+      },
+      {
+        "file_id": "AgACAgQAAxkBAAENhr1kZH1RHlN0kXTDRm1nO-9Ipdb9OAACCLgxG-uHAAFRyr6lDZzi-hYBAAMCAAN5AAMvBA",
+        "file_unique_id": "AQADCLgxG-uHAAFRfg",
+        "file_size": 50052,
+        "width": 720,
+        "height": 1195
+      }
+    ]
+  }
+}
+
+{
+  "update_id": 144288907,
+  "message": {
+    "message_id": 886462,
+    "from": {
+      "id": 527340500,
+      "is_bot": false,
+      "first_name": "Abd \u003c _",
+      "last_name": "ᅠᅠᅠᅠ ᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠ",
+      "username": "abdood",
+      "language_code": "en"
+    },
+    "chat": {
+      "id": 527340500,
+      "first_name": "Abd \u003c _",
+      "last_name": "ᅠᅠᅠᅠ ᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠ",
+      "username": "abdood",
+      "type": "private"
+    },
+    "date": 1684307281,
+    "forward_from_chat": {
+      "id": -1001436567805,
+      "title": "°• فَجر الصّحوَة •° 🌿📚",
+      "username": "s7wafgr",
+      "type": "channel"
+    },
+    "forward_from_message_id": 2331,
+    "forward_date": 1679764472,
+    "media_group_id": "13474458252358785",
+    "photo": [
+      {
+        "file_id": "AgACAgQAAxkBAAENhr5kZH1RBfnerniOiQan61Zh92vEEwACB7gxG-uHAAFRw7zqiUyTepcBAAMCAANzAAMvBA",
+        "file_unique_id": "AQADB7gxG-uHAAFReA",
+        "file_size": 849,
+        "width": 52,
+        "height": 90
+      },
+      {
+        "file_id": "AgACAgQAAxkBAAENhr5kZH1RBfnerniOiQan61Zh92vEEwACB7gxG-uHAAFRw7zqiUyTepcBAAMCAANtAAMvBA",
+        "file_unique_id": "AQADB7gxG-uHAAFRcg",
+        "file_size": 11456,
+        "width": 184,
+        "height": 320
+      },
+      {
+        "file_id": "AgACAgQAAxkBAAENhr5kZH1RBfnerniOiQan61Zh92vEEwACB7gxG-uHAAFRw7zqiUyTepcBAAMCAAN4AAMvBA",
+        "file_unique_id": "AQADB7gxG-uHAAFRfQ",
+        "file_size": 57329,
+        "width": 460,
+        "height": 800
+      },
+      {
+        "file_id": "AgACAgQAAxkBAAENhr5kZH1RBfnerniOiQan61Zh92vEEwACB7gxG-uHAAFRw7zqiUyTepcBAAMCAAN5AAMvBA",
+        "file_unique_id": "AQADB7gxG-uHAAFRfg",
+        "file_size": 77839,
+        "width": 720,
+        "height": 1253
+      }
+    ]
+  }
+}
+
+{
+  "update_id": 144288908,
+  "message": {
+    "message_id": 886463,
+    "from": {
+      "id": 527340500,
+      "is_bot": false,
+      "first_name": "Abd \u003c _",
+      "last_name": "ᅠᅠᅠᅠ ᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠ",
+      "username": "abdood",
+      "language_code": "en"
+    },
+    "chat": {
+      "id": 527340500,
+      "first_name": "Abd \u003c _",
+      "last_name": "ᅠᅠᅠᅠ ᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠ",
+      "username": "abdood",
+      "type": "private"
+    },
+    "date": 1684307281,
+    "forward_from_chat": {
+      "id": -1001436567805,
+      "title": "°• فَجر الصّحوَة •° 🌿📚",
+      "username": "s7wafgr",
+      "type": "channel"
+    },
+    "forward_from_message_id": 2332,
+    "forward_date": 1679764472,
+    "media_group_id": "13474458252358785",
+    "photo": [
+      {
+        "file_id": "AgACAgQAAxkBAAENhr9kZH1RUsLnH8tplzxub4V1rfqGTAACBrgxG-uHAAFRJlSj6q0ExwsBAAMCAANzAAMvBA",
+        "file_unique_id": "AQADBrgxG-uHAAFReA",
+        "file_size": 725,
+        "width": 58,
+        "height": 90
+      },
+      {
+        "file_id": "AgACAgQAAxkBAAENhr9kZH1RUsLnH8tplzxub4V1rfqGTAACBrgxG-uHAAFRJlSj6q0ExwsBAAMCAANtAAMvBA",
+        "file_unique_id": "AQADBrgxG-uHAAFRcg",
+        "file_size": 8398,
+        "width": 205,
+        "height": 320
+      },
+      {
+        "file_id": "AgACAgQAAxkBAAENhr9kZH1RUsLnH8tplzxub4V1rfqGTAACBrgxG-uHAAFRJlSj6q0ExwsBAAMCAAN4AAMvBA",
+        "file_unique_id": "AQADBrgxG-uHAAFRfQ",
+        "file_size": 37367,
+        "width": 512,
+        "height": 800
+      },
+      {
+        "file_id": "AgACAgQAAxkBAAENhr9kZH1RUsLnH8tplzxub4V1rfqGTAACBrgxG-uHAAFRJlSj6q0ExwsBAAMCAAN5AAMvBA",
+        "file_unique_id": "AQADBrgxG-uHAAFRfg",
+        "file_size": 42946,
+        "width": 720,
+        "height": 1125
+      }
+    ]
+  }
+}
+
+{
+  "update_id": 144288909,
+  "message": {
+    "message_id": 886464,
+    "from": {
+      "id": 527340500,
+      "is_bot": false,
+      "first_name": "Abd \u003c _",
+      "last_name": "ᅠᅠᅠᅠ ᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠ",
+      "username": "abdood",
+      "language_code": "en"
+    },
+    "chat": {
+      "id": 527340500,
+      "first_name": "Abd \u003c _",
+      "last_name": "ᅠᅠᅠᅠ ᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠ",
+      "username": "abdood",
+      "type": "private"
+    },
+    "date": 1684307281,
+    "forward_from_chat": {
+      "id": -1001436567805,
+      "title": "°• فَجر الصّحوَة •° 🌿📚",
+      "username": "s7wafgr",
+      "type": "channel"
+    },
+    "forward_from_message_id": 2333,
+    "forward_date": 1679764472,
+    "media_group_id": "13474458252358785",
+    "video": {
+      "duration": 16,
+      "width": 720,
+      "height": 1280,
+      "mime_type": "video/mp4",
+      "thumbnail": {
+        "file_id": "AAMCBAADGQEAAQ2GwGRkfVEKEmmEW5O7Lo4AAdyKkZdIggACJBQAAuuHAAFRiXioQge_rwMBAAdtAAMvBA",
+        "file_unique_id": "AQADJBQAAuuHAAFRcg",
+        "file_size": 9144,
+        "width": 180,
+        "height": 320
+      },
+      "thumb": {
+        "file_id": "AAMCBAADGQEAAQ2GwGRkfVEKEmmEW5O7Lo4AAdyKkZdIggACJBQAAuuHAAFRiXioQge_rwMBAAdtAAMvBA",
+        "file_unique_id": "AQADJBQAAuuHAAFRcg",
+        "file_size": 9144,
+        "width": 180,
+        "height": 320
+      },
+      "file_id": "BAACAgQAAxkBAAENhsBkZH1RChJphFuTuy6OAAHcipGXSIIAAiQUAALrhwABUYl4qEIHv68DLwQ",
+      "file_unique_id": "AgADJBQAAuuHAAFR",
+      "file_size": 5370164
+    }
+  }
+}
+
+{
+  "update_id": 144288910,
+  "message": {
+    "message_id": 886465,
+    "from": {
+      "id": 527340500,
+      "is_bot": false,
+      "first_name": "Abd \u003c _",
+      "last_name": "ᅠᅠᅠᅠ ᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠ",
+      "username": "abdood",
+      "language_code": "en"
+    },
+    "chat": {
+      "id": 527340500,
+      "first_name": "Abd \u003c _",
+      "last_name": "ᅠᅠᅠᅠ ᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠᅠ",
+      "username": "abdood",
+      "type": "private"
+    },
+    "date": 1684307281,
+    "forward_from_chat": {
+      "id": -1001436567805,
+      "title": "°• فَجر الصّحوَة •° 🌿📚",
+      "username": "s7wafgr",
+      "type": "channel"
+    },
+    "forward_from_message_id": 2334,
+    "forward_date": 1679764472,
+    "media_group_id": "13474458252358785",
+    "video": {
+      "duration": 7,
+      "width": 720,
+      "height": 1280,
+      "mime_type": "video/mp4",
+      "thumbnail": {
+        "file_id": "AAMCBAADGQEAAQ2GwWRkfVFmhVa_bYqm_-NKQXxte5VDAAIjFAAC64cAAVH2daQoZjkJnAEAB20AAy8E",
+        "file_unique_id": "AQADIxQAAuuHAAFRcg",
+        "file_size": 18176,
+        "width": 180,
+        "height": 320
+      },
+      "thumb": {
+        "file_id": "AAMCBAADGQEAAQ2GwWRkfVFmhVa_bYqm_-NKQXxte5VDAAIjFAAC64cAAVH2daQoZjkJnAEAB20AAy8E",
+        "file_unique_id": "AQADIxQAAuuHAAFRcg",
+        "file_size": 18176,
+        "width": 180,
+        "height": 320
+      },
+      "file_id": "BAACAgQAAxkBAAENhsFkZH1RZoVWv22Kpv_jSkF8bXuVQwACIxQAAuuHAAFR9nWkKGY5CZwvBA",
+      "file_unique_id": "AgADIxQAAuuHAAFR",
+      "file_size": 3037108
+    },
+    "caption": "-\nمقاطع من اليوم الثالث 💙🌿\nأقصىٰ ومطر (اللهم إن كان في سابق علمك أن تجمعنا في مثله فبارك لنا فيه) ."
+  }
+}

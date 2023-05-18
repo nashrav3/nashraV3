@@ -24,8 +24,8 @@ feature.callbackQuery(
     );
 
     if (i18n.locales.includes(languageCode)) {
-      ctx.scope.user = await ctx.prisma.user.update({
-        where: ctx.prisma.user.byTelegramId(ctx.from.id),
+      ctx.scope.chat = await ctx.prisma.chat.update({
+        where: ctx.prisma.chat.byChatId(ctx.from.id),
         data: {
           languageCode,
         },

@@ -10,7 +10,7 @@ feature.command("start", logHandle("command-start"), (ctx) => {
   const { queues } = ctx.container;
 
   return queues.greeting.add("welcome", {
-    chatId: ctx.chat.id,
+    ctx,
   });
 });
 

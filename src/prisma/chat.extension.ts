@@ -2,42 +2,42 @@ import { Prisma, Role } from "@prisma/client";
 import type { PrismaClientX } from "~/prisma";
 
 export default Prisma.defineExtension({
-  name: "user",
+  name: "chat",
   result: {
-    user: {
+    chat: {
       isAdmin: {
         needs: { role: true },
-        compute(user) {
-          return user.role === Role.ADMIN;
+        compute(chat) {
+          return chat.role === Role.ADMIN;
         },
       },
 
       isOwner: {
         needs: { role: true },
-        compute(user) {
-          return user.role === Role.OWNER;
+        compute(chat) {
+          return chat.role === Role.OWNER;
         },
       },
     },
   },
   model: {
-    user: {
-      byTelegramId(telegramId: number) {
+    chat: {
+      byChatId(chatId: number) {
         return {
-          telegramId,
-        } satisfies Prisma.UserWhereInput;
+          chatId,
+        } satisfies Prisma.ChatWhereInput;
       },
 
       hasAdminRole() {
         return {
           role: Role.ADMIN,
-        } satisfies Prisma.UserWhereInput;
+        } satisfies Prisma.ChatWhereInput;
       },
 
       hasOwnerRole() {
         return {
           role: Role.OWNER,
-        } satisfies Prisma.UserWhereInput;
+        } satisfies Prisma.ChatWhereInput;
       },
 
       withRoles() {
@@ -45,7 +45,7 @@ export default Prisma.defineExtension({
           role: true,
           isAdmin: true,
           isOwner: true,
-        } satisfies Prisma.UserSelect<PrismaClientX["$extends"]["extArgs"]>;
+        } satisfies Prisma.ChatSelect<PrismaClientX["$extends"]["extArgs"]>;
       },
     },
   },

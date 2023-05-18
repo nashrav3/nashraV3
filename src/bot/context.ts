@@ -1,5 +1,4 @@
 import { Update, UserFromGetMe } from "@grammyjs/types";
-import { UserPayload } from "@prisma/client";
 import { Context as DefaultContext, SessionFlavor, type Api } from "grammy";
 import type { Container } from "~/container";
 import { Logger } from "~/logger";
@@ -9,15 +8,16 @@ import { ConversationFlavor } from "@grammyjs/conversations";
 import { HydrateFlavor } from "@grammyjs/hydrate";
 import { I18nFlavor } from "@grammyjs/i18n";
 import { ParseModeFlavor } from "@grammyjs/parse-mode";
+import { ChatPayload } from "@prisma/client";
 import { PrismaClientX } from "~/prisma";
 
-type ScopeUser = Omit<
-  UserPayload<PrismaClientX["$extends"]["extArgs"]>["scalars"],
-  "updatedAt" | "createdAt"
+type ScopeChat = Omit<
+  ChatPayload<PrismaClientX["$extends"]["extArgs"]>["scalars"],
+  "updatedAt" | "createdAt" | "chatType"
 >;
 
 export interface ContextScope {
-  user?: ScopeUser;
+  chat?: ScopeChat;
 }
 
 type ExtendedContextFlavor = {

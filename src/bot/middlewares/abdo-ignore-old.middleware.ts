@@ -11,7 +11,7 @@ export const abdoIgnoreOld =
       !ctx.msg.edit_date
     ) {
       console.log(
-        `Ignoring message from user ${ctx.from?.id} at chat ${ctx.chat?.id} (${
+        `Ignoring message from chat ${ctx.from?.id} at chat ${ctx.chat?.id} (${
           new Date().getTime() / 1000
         }:${ctx.msg.date})`
       );

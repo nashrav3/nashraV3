@@ -3,20 +3,20 @@ import type { Context } from "~/bot/context";
 
 export const setScope = (): Middleware<Context> => async (ctx, next) => {
   if (ctx.from?.is_bot === false) {
-    const { id: telegramId, language_code: languageCode } = ctx.from;
+    const { id: chatId, language_code: languageCode } = ctx.from;
 
-    ctx.scope.user = await ctx.prisma.user.upsert({
-      where: ctx.prisma.user.byTelegramId(telegramId),
+    ctx.scope.chat = await ctx.prisma.chat.upsert({
+      where: ctx.prisma.chat.byChatId(chatId),
       create: {
-        telegramId,
+        chatId,
+        chatType: "private",
         languageCode,
       },
       update: {},
       select: {
-        id: true,
-        telegramId: true,
+        chatId: true,
         languageCode: true,
-        ...ctx.prisma.user.withRoles(),
+        ...ctx.prisma.chat.withRoles(),
       },
     });
   }

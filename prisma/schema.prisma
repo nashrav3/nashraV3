@@ -9,115 +9,53 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id           Int      @id @default(autoincrement())
-  telegramId   BigInt   @unique @map("telegram_id")
+model Chat {
+  chatId       BigInt   @unique @map("chat_id")
+  chatType     ChatType @map("chat_type")
   languageCode String?  @map("language_code")
   updatedAt    DateTime @updatedAt @map("updated_at")
   createdAt    DateTime @default(now()) @map("created_at")
   role         Role     @default(USER)
+  posts        Post[]
 
-  @@map("users")
+  @@map("chats")
 }
 
-model people_copy {
-  id          Int    @id
-  city        String
-  fam_no      String
-  gr_mother   String
-  mark        String
-  p_birth     String
-  p_case      String
-  p_father    String
-  p_first     String
-  p_grand     String
-  p_isudt     String
-  p_job       String
-  p_mother    String
-  p_relation  String
-  p_salary    String
-  p_work      String
-  rc_no       String
-  seq_no      String
-  soc         String
-  ss_br_nm    String
-  ss_br_no    String
-  ss_id_no    String
-  ss_lg_no    String
-  ss_pg_no    String
-  t_job       String
-  full_name   String
-  f_street    String
-  rc_name     String
-  f           String
-  f_dist      String
-  f_house     String
-  f_area      String
-  mother_name String
+model Bot {
+  botId     BigInt   @unique @map("bot_id")
+  token     String   @unique
+  username  String   @db.VarChar(255)
+  firstName String   @default("bot_name") @map("first_name") @db.VarChar(255) //longest name for a bot in nashrabot db is 206
+  posts     Post[]
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@index([fam_no, city], map: "idx_people_copy_filter")
-  @@index([city, p_first, p_father, p_grand, p_birth(sort: Desc)], map: "idx_people_copy_filter_sort")
+  @@map("bots")
 }
 
-model city_counts {
-  city     String
-  p_first  String?
-  p_father String?
-  p_grand  String?
-  count    Int
-  id       Int     @id @default(autoincrement())
+model Post {
+  postId      Int      @unique @default(autoincrement())
+  Chat        Chat     @relation(fields: [chatId], references: [chatId])
+  chatId      BigInt   @map("chat_id")
+  bot         Bot      @relation(fields: [botId], references: [botId])
+  botId       BigInt   @map("bot_id")
+  text        String?  @db.VarChar(4096)
+  entities    Json?
+  replyMarkup Json?    @map("reply_markup")
+  createdAt   DateTime @default(now()) @map("created_at")
 
-  @@index([p_first, p_father, p_grand])
-}
-
-model prs {
-  per_id           Int     @id @default(autoincrement())
-  per_famno        Int?
-  per_first        String? @db.VarChar(15)
-  per_father       String? @db.VarChar(15)
-  per_grand        String? @db.VarChar(15)
-  per_dob          String? @db.VarChar(10)
-  per_dob2         Int?
-  per_vrtype_2013  String  @db.VarChar(6)
-  pcno             Int
-  vrc_id           Int
-  gov_mot_id       Int
-  gov_name_ar      String  @db.VarChar(25)
-  pc_name          String  @db.VarChar(70)
-  pc_address       String  @db.VarChar(150)
-  vrc_name_ar      String  @db.VarChar(35)
-  vrc_address      String  @db.VarChar(100)
-  vrc_oid          Int?
-  psno             Int?
-  voterseq         Int?
-  cardserialnumber Int?
-  votercard_status String  @db.VarChar(35)
-  rigestered_case  String  @db.VarChar(35)
-  new_card_status  String  @db.VarChar(35)
-
-  @@index([per_famno, gov_mot_id], map: "idx_prs_famno_govmot")
-}
-
-model vrc {
-  id       Int    @id @default(autoincrement())
-  vrcno    Int
-  vrc_name String @db.VarChar
-  govno    Int
-}
-
-model vrc_idp {
-  gov_mot_id           Int
-  gov_name_ar          String @db.VarChar
-  vrc_id               Int    @id
-  vrc_name_ar          String @db.VarChar
-  vrc_district_no      Int
-  vrc_district_name    String @db.VarChar
-  vrc_subdistrict_no   Int
-  vrc_subdistrict_name String @db.VarChar
+  @@map("posts")
 }
 
 enum Role {
   USER
   ADMIN
   OWNER
+}
+
+enum ChatType {
+  private
+  group
+  supergroup
+  channel
 }
