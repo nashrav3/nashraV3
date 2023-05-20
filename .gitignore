@@ -133,3 +133,6 @@ data/
 
 # Jetbrains IDE
 .idea/
+
+*.crt
+*.Identifier

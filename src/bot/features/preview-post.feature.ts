@@ -19,14 +19,41 @@ feature.command(
         postId,
       },
     });
-    if (!post) ctx.reply(ctx.t("post_not_found"));
-    else {
-      await ctx.reply(post.text || "not found", {
-        parse_mode: undefined,
-        reply_markup: post.replyMarkup as unknown as InlineKeyboard,
-        entities: post.entities as unknown as MessageEntity[],
-      });
-    }
+    if (!post) return ctx.reply(ctx.t("post_not_found"));
+
+    const {
+      text,
+      photo,
+      video,
+      audio,
+      voice,
+      animation,
+      document,
+      sticker,
+      hasMediaSpoiler,
+      caption,
+      captionEntities,
+      replyMarkup,
+      entities,
+    } = post;
+
+    const replyOptions = {
+      parse_mode: undefined,
+      reply_markup: replyMarkup as unknown as InlineKeyboard,
+      entities: entities as unknown as MessageEntity[],
+      caption: caption || undefined,
+      caption_entities: captionEntities as unknown as MessageEntity[],
+      has_spoiler: hasMediaSpoiler || undefined,
+    };
+
+    if (text) return ctx.reply(text, replyOptions);
+    if (photo) return ctx.replyWithPhoto(photo, replyOptions);
+    if (video) return ctx.replyWithVideo(video, replyOptions);
+    if (audio) return ctx.replyWithAudio(audio, replyOptions);
+    if (document) return ctx.replyWithDocument(document, replyOptions);
+    if (sticker) return ctx.replyWithSticker(sticker, replyOptions);
+    if (animation) return ctx.replyWithAnimation(animation, replyOptions);
+    if (voice) return ctx.replyWithVoice(voice, replyOptions);
   }
 );
 

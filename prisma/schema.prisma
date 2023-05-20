@@ -10,41 +10,75 @@ datasource db {
 }
 
 model Chat {
-  chatId       BigInt   @unique @map("chat_id")
-  chatType     ChatType @map("chat_type")
-  languageCode String?  @map("language_code")
-  updatedAt    DateTime @updatedAt @map("updated_at")
-  createdAt    DateTime @default(now()) @map("created_at")
-  role         Role     @default(USER)
+  chatId       BigInt    @unique @map("chat_id")
+  chatType     ChatType  @map("chat_type")
+  languageCode String?   @map("language_code")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  role         Role      @default(USER)
   posts        Post[]
+  bots         BotChat[]
 
   @@map("chats")
 }
 
 model Bot {
-  botId     BigInt   @unique @map("bot_id")
-  token     String   @unique
-  username  String   @db.VarChar(255)
-  firstName String   @default("bot_name") @map("first_name") @db.VarChar(255) //longest name for a bot in nashrabot db is 206
+  botId     BigInt    @unique @map("bot_id")
+  token     String    @unique
+  username  String    @db.VarChar(255)
+  firstName String    @default("bot_name") @map("first_name") @db.VarChar(255) //longest name for a bot in nashrabot db is 206
   posts     Post[]
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  chats     BotChat[]
 
   @@map("bots")
 }
 
 model Post {
-  postId      Int      @unique @default(autoincrement())
-  Chat        Chat     @relation(fields: [chatId], references: [chatId])
-  chatId      BigInt   @map("chat_id")
-  bot         Bot      @relation(fields: [botId], references: [botId])
-  botId       BigInt   @map("bot_id")
-  text        String?  @db.VarChar(4096)
-  entities    Json?
-  replyMarkup Json?    @map("reply_markup")
-  createdAt   DateTime @default(now()) @map("created_at")
+  postId                Int        @unique @default(autoincrement()) @map("post_id")
+  Chat                  Chat       @relation(fields: [chatId], references: [chatId])
+  chatId                BigInt     @map("chat_id")
+  bot                   Bot        @relation(fields: [botId], references: [botId])
+  botId                 BigInt     @map("bot_id")
+  text                  String?    @db.VarChar(4096)
+  parseMode             ParseMode? @map("parse_mode")
+  entities              Json?
+  replyMarkup           Json?      @map("reply_markup")
+  mediaGroupId          String?    @map("media_group_id")
+  animation             String?
+  audio                 String?
+  document              String?
+  photo                 String?
+  sticker               String?
+  video                 String?
+  videoNote             String?    @map("video_note")
+  voice                 String?
+  caption               String?
+  captionEntities       Json?      @map("caption_entities")
+  hasMediaSpoiler       Boolean?   @map("has_media_spoiler")
+  disableWebPagePreview Boolean?   @map("disable_web_page_preview")
+  dice                  String?
+  game                  Json?
+  poll                  Json?
+  venue                 Json?
+  location              Json?
+  createdAt             DateTime   @default(now()) @map("created_at")
 
   @@map("posts")
+}
+
+model BotChat {
+  bot            Bot      @relation(fields: [botId], references: [botId])
+  botId          BigInt   @map("bot_id")
+  chat           Chat     @relation(fields: [chatId], references: [chatId], onUpdate: Cascade, onDelete: Cascade)
+  chatId         BigInt   @map("chat_id")
+  canInviteUsers Boolean?
+  updatedAt      DateTime @updatedAt @map("updated_at")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@unique([botId, chatId])
+  @@map("bot_chat")
 }
 
 enum Role {
@@ -58,4 +92,10 @@ enum ChatType {
   group
   supergroup
   channel
+}
+
+enum ParseMode {
+  MarkdownV2
+  Markdown
+  HTML
 }
