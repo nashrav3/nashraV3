@@ -1,3 +1,6 @@
+import { createBullBoard } from "@bull-board/api";
+import { BullMQAdapter } from "@bull-board/api/bullMQAdapter";
+import { FastifyAdapter } from "@bull-board/fastify";
 import fastify from "fastify";
 import { BotError, webhookCallback } from "grammy";
 import { register } from "prom-client";
@@ -47,6 +50,19 @@ export const createServer = async (
     } catch (err) {
       await res.status(500).send(err);
     }
+  });
+
+  const serverAdapter = new FastifyAdapter();
+
+  createBullBoard({
+    queues: [new BullMQAdapter(container.queues.greeting)],
+    serverAdapter,
+  });
+
+  serverAdapter.setBasePath("/ui");
+  server.register(serverAdapter.registerPlugin(), {
+    prefix: "/ui",
+    basePath: "/ui",
   });
 
   return server;
