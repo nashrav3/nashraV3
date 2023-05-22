@@ -4,7 +4,7 @@ import { Role } from "@prisma/client";
 import { Job, Worker } from "bullmq";
 import { Bot, createBot } from "~/bot";
 import { createAppContainer } from "~/container";
-import { createGreetingWorker } from "~/queues";
+import { createBroadcastWorker, createGreetingWorker } from "~/queues";
 import { createServer } from "~/server";
 
 const container = createAppContainer();
@@ -63,6 +63,15 @@ try {
       connection: redis,
       handleError: handleWorkerError,
       prisma,
+    })
+  );
+
+  workers.push(
+    createBroadcastWorker({
+      connection: redis,
+      handleError: handleWorkerError,
+      prisma,
+      container,
     })
   );
   // update bot owner role

@@ -2,7 +2,7 @@ import Redis from "ioredis";
 import { config } from "~/config";
 import { createLogger } from "~/logger";
 import { createPrisma } from "~/prisma";
-import { createGreetingQueue } from "~/queues";
+import { createBroadcastQueue, createGreetingQueue } from "~/queues";
 
 export const createAppContainer = () => {
   const logger = createLogger(config);
@@ -16,6 +16,9 @@ export const createAppContainer = () => {
     redis,
     queues: {
       greeting: createGreetingQueue({
+        connection: redis,
+      }),
+      broadcast: createBroadcastQueue({
         connection: redis,
       }),
     },

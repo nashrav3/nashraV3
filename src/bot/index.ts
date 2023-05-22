@@ -7,6 +7,7 @@ import { Context, createContextConstructor } from "~/bot/context";
 import { createPostConversation } from "~/bot/conversations";
 import {
   addBotFeature,
+  broadcastFeature,
   createPostFeature,
   languageFeature,
   previewPostFeature,
@@ -65,6 +66,7 @@ export const createBot = (
   bot.use(addBotFeature);
   bot.use(previewPostFeature);
   bot.use(createPostFeature);
+  bot.use(broadcastFeature);
   if (isMultipleLocales) {
     bot.use(languageFeature);
   }

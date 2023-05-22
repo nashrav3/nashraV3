@@ -6,7 +6,7 @@ import type { PrismaClientX } from "~/prisma";
 
 export type GreetingData = {
   botInfo: UserFromGetMe;
-  chatId: string;
+  chatId: number;
   token: string;
 };
 
@@ -41,7 +41,7 @@ export function createGreetingWorker({
       connection,
       limiter: {
         max: 1,
-        duration: 6000,
+        duration: 1000,
         groupKey: "token",
       },
     }

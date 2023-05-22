@@ -55,7 +55,10 @@ export const createServer = async (
   const serverAdapter = new FastifyAdapter();
 
   createBullBoard({
-    queues: [new BullMQAdapter(container.queues.greeting)],
+    queues: [
+      new BullMQAdapter(container.queues.greeting),
+      new BullMQAdapter(container.queues.broadcast),
+    ],
     serverAdapter,
   });
 

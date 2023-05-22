@@ -6,7 +6,7 @@ const composer = new Composer<Context>();
 
 const feature = composer.chatType("private");
 
-feature.command("start", logHandle("command-start"), async (ctx) => {
+feature.command("start333", logHandle("command-start"), async (ctx) => {
   const { queues } = ctx.container;
   const chats = await ctx.prisma.botChat.findMany({
     where: { botId: ctx.me.id },
@@ -19,7 +19,7 @@ feature.command("start", logHandle("command-start"), async (ctx) => {
   chats.forEach((chat) => {
     queues.greeting.add(`chatActionTyping:${ctx.me.username}:${chat.chatId}`, {
       botInfo: ctx.me,
-      chatId: chat.chatId.toString(),
+      chatId: Number(chat.chatId),
       token,
     });
   });
