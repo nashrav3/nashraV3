@@ -154,9 +154,10 @@ export function createBroadcastWorker({
       connection,
       limiter: {
         max: 1,
-        duration: 1000,
+        duration: 3000,
         groupKey: "token",
       },
+      concurrency: 10,
     }
   ).on("failed", handleError);
 }

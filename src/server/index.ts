@@ -58,6 +58,7 @@ export const createServer = async (
     queues: [
       new BullMQAdapter(container.queues.greeting),
       new BullMQAdapter(container.queues.broadcast),
+      new BullMQAdapter(container.queues.broadcastFlows),
     ],
     serverAdapter,
   });

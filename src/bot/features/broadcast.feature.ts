@@ -31,17 +31,18 @@ feature.command("broadcast", logHandle("command-broadcast"), async (ctx) => {
 
   const { redis } = ctx.container;
 
+  const { token } = await ctx.prisma.bot.findUniqueOrThrow({
+    where: ctx.prisma.bot.byBotId(ctx.me.id),
+    select: { token: true },
+  });
+
   const chats = await ctx.prisma.botChat.findMany({
-    where: { botId: ctx.me.id },
+    where: { botId: ctx.me.id, ...ctx.prisma.botChat.canSend() },
     orderBy: {
       id: "asc",
     },
   });
 
-  const { token } = await ctx.prisma.bot.findUniqueOrThrow({
-    where: ctx.prisma.bot.byBotId(ctx.me.id),
-    select: { token: true },
-  });
   const children = chats.map((chat) => {
     return {
       name: `broadcast:${ctx.me.username}:${chat.chatId}`,
@@ -57,9 +58,17 @@ feature.command("broadcast", logHandle("command-broadcast"), async (ctx) => {
   });
   const broadcastFlow = new FlowProducer({ connection: redis });
   broadcastFlow.add({
-    name: `broadcast:@${ctx.me.username}`,
-    queueName: "broadcast",
+    name: `broadcast-flow:@${ctx.me.username}`,
+    queueName: "broadcast-flows",
     children,
+    data: {
+      botInfo: ctx.me,
+      chatId: Number(ctx.chat.id),
+      token,
+    },
+    opts: {
+      attempts: 1,
+    },
   });
 });
 

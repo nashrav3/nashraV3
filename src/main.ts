@@ -3,7 +3,11 @@ import { RedisAdapter } from "@grammyjs/storage-redis";
 import { Job, Worker } from "bullmq";
 import { Bot, createBot } from "~/bot";
 import { createAppContainer } from "~/container";
-import { createBroadcastWorker, createGreetingWorker } from "~/queues";
+import {
+  createBroadcastFlowsWorker,
+  createBroadcastWorker,
+  createGreetingWorker,
+} from "~/queues";
 import { createServer } from "~/server";
 
 const container = createAppContainer();
@@ -71,6 +75,14 @@ try {
       handleError: handleWorkerError,
       prisma,
       container,
+    })
+  );
+
+  workers.push(
+    createBroadcastFlowsWorker({
+      connection: redis,
+      handleError: handleWorkerError,
+      prisma,
     })
   );
   // update bot owner role

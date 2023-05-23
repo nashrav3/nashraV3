@@ -2,12 +2,18 @@ import Redis from "ioredis";
 import { config } from "~/config";
 import { createLogger } from "~/logger";
 import { createPrisma } from "~/prisma";
-import { createBroadcastQueue, createGreetingQueue } from "~/queues";
+import {
+  createBroadcastFlowsQueue,
+  createBroadcastQueue,
+  createGreetingQueue,
+} from "~/queues";
 
 export const createAppContainer = () => {
   const logger = createLogger(config);
   const prisma = createPrisma(logger);
-  const redis = new Redis(config.REDIS_URL);
+  const redis = new Redis(config.REDIS_URL, {
+    maxRetriesPerRequest: null,
+  });
 
   return {
     config,
@@ -21,6 +27,7 @@ export const createAppContainer = () => {
       broadcast: createBroadcastQueue({
         connection: redis,
       }),
+      broadcastFlows: createBroadcastFlowsQueue({ connection: redis }),
     },
   };
 };

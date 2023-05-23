@@ -1,6 +1,7 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 import { Logger } from "~/logger";
 
+import botChatExtension from "./bot-chat.extension";
 import botExtension from "./bot.extension";
 import chatExtension from "./chat.extension";
 import postExtension from "./post.extension";
@@ -86,7 +87,8 @@ export const createPrisma = (logger: Logger) => {
   return prisma
     .$extends(chatExtension)
     .$extends(botExtension)
-    .$extends(postExtension);
+    .$extends(postExtension)
+    .$extends(botChatExtension);
 };
 
 export type PrismaClientX = ReturnType<typeof createPrisma>;
