@@ -3,6 +3,7 @@ import { Logger } from "~/logger";
 
 import botExtension from "./bot.extension";
 import chatExtension from "./chat.extension";
+import postExtension from "./post.extension";
 
 const parseParameters = (parameters: string): unknown[] => {
   try {
@@ -82,7 +83,10 @@ export const createPrisma = (logger: Logger) => {
     });
   });
 
-  return prisma.$extends(chatExtension).$extends(botExtension);
+  return prisma
+    .$extends(chatExtension)
+    .$extends(botExtension)
+    .$extends(postExtension);
 };
 
 export type PrismaClientX = ReturnType<typeof createPrisma>;

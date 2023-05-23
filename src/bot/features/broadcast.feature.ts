@@ -1,3 +1,4 @@
+import { FlowProducer } from "bullmq";
 import { Composer } from "grammy";
 import type { Context } from "~/bot/context";
 import { logHandle } from "~/bot/helpers/logging";
@@ -9,9 +10,7 @@ const feature = composer.chatType("private");
 feature.command("broadcast", logHandle("command-broadcast"), async (ctx) => {
   const postId = parseInt(ctx.match, 10);
   const post = await ctx.prisma.post.findFirst({
-    where: {
-      postId,
-    },
+    where: ctx.prisma.post.byPostId(postId),
     select: {
       text: true,
       photo: true,
@@ -30,33 +29,37 @@ feature.command("broadcast", logHandle("command-broadcast"), async (ctx) => {
   });
   if (!post) return ctx.reply(ctx.t("post_not_found"));
 
-  const batchSize = 20;
-  const { queues } = ctx.container;
+  const { redis } = ctx.container;
 
   const chats = await ctx.prisma.botChat.findMany({
-    take: batchSize,
     where: { botId: ctx.me.id },
     orderBy: {
       id: "asc",
     },
   });
-  const cursor = chats[batchSize - 1].id;
 
   const { token } = await ctx.prisma.bot.findUniqueOrThrow({
     where: ctx.prisma.bot.byBotId(ctx.me.id),
     select: { token: true },
   });
-
-  chats.forEach((chat) => {
-    queues.broadcast.add(`chatActionTyping:${ctx.me.username}:${chat.chatId}`, {
-      botInfo: ctx.me,
-      chatId: Number(chat.chatId),
-      serialId: chat.id,
-      cursor,
-      batchSize,
-      token,
-      post,
-    });
+  const children = chats.map((chat) => {
+    return {
+      name: `broadcast:${ctx.me.username}:${chat.chatId}`,
+      data: {
+        botInfo: ctx.me,
+        chatId: Number(chat.chatId),
+        serialId: chat.id,
+        token,
+        post, // TODO: all jobs in a flow have same post so make it in one place and make jobs able to access it to save memory
+      },
+      queueName: "broadcast",
+    };
+  });
+  const broadcastFlow = new FlowProducer({ connection: redis });
+  broadcastFlow.add({
+    name: `broadcast:@${ctx.me.username}`,
+    queueName: "broadcast",
+    children,
   });
 });
 

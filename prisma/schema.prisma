@@ -15,7 +15,6 @@ model Chat {
   languageCode String?   @map("language_code")
   updatedAt    DateTime  @updatedAt @map("updated_at")
   createdAt    DateTime  @default(now()) @map("created_at")
-  role         Role      @default(USER)
   posts        Post[]
   bots         BotChat[]
 
@@ -69,16 +68,19 @@ model Post {
 }
 
 model BotChat {
-  id          Int      @unique @default(autoincrement())
-  bot         Bot      @relation(fields: [botId], references: [botId])
-  botId       BigInt   @map("bot_id")
-  chat        Chat     @relation(fields: [chatId], references: [chatId], onUpdate: Cascade, onDelete: Cascade)
-  chatId      BigInt   @map("chat_id")
-  deactivated Boolean?
-  botBlocked  Boolean? @map("bot_blocked")
-  notFound    Boolean? @map("not_found")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-  createdAt   DateTime @default(now()) @map("created_at")
+  id              Int      @unique @default(autoincrement())
+  bot             Bot      @relation(fields: [botId], references: [botId])
+  botId           BigInt   @map("bot_id")
+  chat            Chat     @relation(fields: [chatId], references: [chatId], onUpdate: Cascade, onDelete: Cascade)
+  chatId          BigInt   @map("chat_id")
+  role            Role?
+  deactivated     Boolean?
+  botBlocked      Boolean? @map("bot_blocked")
+  notFound        Boolean? @map("not_found")
+  notMember       Boolean? @map("not_member")
+  needAdminRights Boolean? @map("need_admin_rights")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  createdAt       DateTime @default(now()) @map("created_at")
 
   @@unique([botId, chatId])
   @@map("bot_chat")

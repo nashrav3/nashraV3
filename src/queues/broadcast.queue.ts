@@ -51,16 +51,16 @@ export const sendBroadcast = async (
     caption_entities: captionEntities as unknown as MessageEntity[],
     has_spoiler: hasMediaSpoiler || undefined,
   };
-
-  if (text) return jobBot.api.sendMessage(chatId, text, replyOptions);
-  if (photo) return jobBot.api.sendPhoto(chatId, photo, replyOptions);
-  if (video) return jobBot.api.sendVideo(chatId, video, replyOptions);
-  if (audio) return jobBot.api.sendAudio(chatId, audio, replyOptions);
-  if (document) return jobBot.api.sendDocument(chatId, document, replyOptions);
-  if (sticker) return jobBot.api.sendSticker(chatId, sticker, replyOptions);
-  if (animation)
-    return jobBot.api.sendAnimation(chatId, animation, replyOptions);
-  if (voice) return jobBot.api.sendVoice(chatId, voice, replyOptions);
+  return jobBot.api.sendChatAction(chatId, "typing");
+  // if (text) return jobBot.api.sendMessage(chatId, text, replyOptions);
+  // if (photo) return jobBot.api.sendPhoto(chatId, photo, replyOptions);
+  // if (video) return jobBot.api.sendVideo(chatId, video, replyOptions);
+  // if (audio) return jobBot.api.sendAudio(chatId, audio, replyOptions);
+  // if (document) return jobBot.api.sendDocument(chatId, document, replyOptions);
+  // if (sticker) return jobBot.api.sendSticker(chatId, sticker, replyOptions);
+  // if (animation)
+  //   return jobBot.api.sendAnimation(chatId, animation, replyOptions);
+  // if (voice) return jobBot.api.sendVoice(chatId, voice, replyOptions);
 };
 
 export type BroadcastData = {
@@ -114,31 +114,6 @@ export function createBroadcastWorker({
   return new Worker<BroadcastData>(
     queueName,
     async (job) => {
-      if (job.data.cursor === job.data.serialId) {
-        const chats = await prisma.botChat.findMany({
-          take: job.data.batchSize,
-          skip: 1,
-          cursor: {
-            id: job.data.cursor,
-          },
-          where: { botId: job.data.botInfo.id },
-          orderBy: {
-            id: "asc",
-          },
-        });
-        const newCursor = chats[job.data.batchSize - 1].id;
-        chats.forEach((chat) => {
-          container.queues.broadcast.add(`chatActionTyping`, {
-            botInfo: job.data.botInfo,
-            chatId: Number(chat.chatId),
-            serialId: chat.id,
-            cursor: newCursor,
-            batchSize: job.data.batchSize,
-            token: job.data.token,
-            post: job.data.post,
-          });
-        });
-      }
       const jobBot = new Bot(job.data.token, { botInfo: job.data.botInfo });
       await sendBroadcast(jobBot, job.data.post, job.data.chatId).catch(
         async (err: GrammyError) => {
@@ -155,6 +130,12 @@ export function createBroadcastWorker({
             "Forbidden: user is deactivated": { deactivated: true },
             "Forbidden: bot was blocked by the user": { botBlocked: true },
             "Bad Request: chat not found": { notFound: true },
+            "Forbidden: bot is not a member of the channel chat": {
+              notMember: true,
+            },
+            "Bad Request: need administrator rights in the channel chat": {
+              needAdminRights: true,
+            },
           };
 
           const errorDescription = err.description;
@@ -172,7 +153,7 @@ export function createBroadcastWorker({
     {
       connection,
       limiter: {
-        max: 20,
+        max: 1,
         duration: 1000,
         groupKey: "token",
       },

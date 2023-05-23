@@ -1,6 +1,5 @@
 #!/usr/bin/env tsx
 import { RedisAdapter } from "@grammyjs/storage-redis";
-import { Role } from "@prisma/client";
 import { Job, Worker } from "bullmq";
 import { Bot, createBot } from "~/bot";
 import { createAppContainer } from "~/container";
@@ -80,10 +79,10 @@ try {
     create: {
       chatId: config.BOT_ADMIN_USER_ID,
       chatType: "private",
-      role: Role.OWNER,
+      // role: Role.OWNER,
     },
     update: {
-      role: Role.OWNER,
+      // role: Role.OWNER,
     },
   });
 

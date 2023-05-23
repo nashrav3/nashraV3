@@ -22,22 +22,15 @@ feature.hears(
       })
       .then(async () => {
         await bot.api.deleteWebhook();
-        await bot.api.setWebhook(`${config.WEBHOOK_URL}/${token}`);
+        await bot.api.setWebhook(`${config.WEBHOOK_URL}/${token}`, {
+          allowed_updates: config.BOT_ALLOWED_UPDATES,
+        });
       });
-    const { first_name: firstName, username, id: botId } = bot.botInfo;
+
     const dbBot = await ctx.prisma.bot.upsert({
-      where: ctx.prisma.bot.byBotId(botId),
-      create: {
-        botId,
-        token,
-        username,
-        firstName,
-      },
-      update: {
-        username,
-        token,
-        firstName,
-      },
+      where: ctx.prisma.bot.byBotId(bot.botInfo.id),
+      create: ctx.prisma.bot.createNewBotInput(bot.botInfo, ctx.from.id, token),
+      update: ctx.prisma.bot.updateBotInput(bot.botInfo, ctx.from.id, token),
     });
     if (dbBot.isNew) return ctx.reply(ctx.t("add-bot.new-bot-added"));
     return ctx.reply(ctx.t("add-bot.bot-updated"));
