@@ -38,7 +38,6 @@ export function createBroadcastFlowsWorker({
     queueName,
     async (job) => {
       const jobBot = new Bot(job.data.token, { botInfo: job.data.botInfo });
-
       await jobBot.api.sendMessage(job.data.chatId, "broadcast done");
     },
     {

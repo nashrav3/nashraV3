@@ -11,21 +11,7 @@ feature.command("broadcast", logHandle("command-broadcast"), async (ctx) => {
   const postId = parseInt(ctx.match, 10);
   const post = await ctx.prisma.post.findFirst({
     where: ctx.prisma.post.byPostId(postId),
-    select: {
-      text: true,
-      photo: true,
-      video: true,
-      audio: true,
-      voice: true,
-      animation: true,
-      document: true,
-      sticker: true,
-      hasMediaSpoiler: true,
-      caption: true,
-      captionEntities: true,
-      replyMarkup: true,
-      entities: true,
-    },
+    select: ctx.prisma.post.postSelectValues(),
   });
   if (!post) return ctx.reply(ctx.t("post_not_found"));
 

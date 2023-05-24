@@ -49,13 +49,13 @@ export const createBot = (
   if (config.isDev) {
     bot.use(updateLogger());
   }
+  bot.use(setScope());
   bot.use(abdoIgnoreOld());
   bot.use(metrics());
   bot.use(autoChatAction(bot.api));
   bot.use(hydrateReply);
   bot.use(hydrate());
   bot.use(session(sessionStorage));
-  bot.use(setScope());
   bot.use(i18n());
   bot.use(conversations());
   bot.use(createPostConversation(container));

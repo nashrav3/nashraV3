@@ -114,16 +114,17 @@ export function createBroadcastWorker({
   return new Worker<BroadcastData>(
     queueName,
     async (job) => {
-      const jobBot = new Bot(job.data.token, { botInfo: job.data.botInfo });
-      await sendBroadcast(jobBot, job.data.post, job.data.chatId).catch(
+      const {
+        token,
+        chatId,
+        post,
+        botInfo: { id: botId },
+      } = job.data;
+      const jobBot = new Bot(token, { botInfo: job.data.botInfo });
+      await sendBroadcast(jobBot, post, chatId).catch(
         async (err: GrammyError) => {
           const commonData = {
-            where: {
-              botId_chatId: {
-                botId: jobBot.botInfo.id,
-                chatId: job.data.chatId,
-              },
-            },
+            where: prisma.botChat.byBotIdChatId(botId, chatId),
           };
 
           const errorMappings: Record<string, { [key: string]: boolean }> = {
@@ -152,12 +153,12 @@ export function createBroadcastWorker({
     },
     {
       connection,
-      limiter: {
-        max: 1,
-        duration: 3000,
-        groupKey: "token",
-      },
-      concurrency: 10,
+      // limiter: {
+      //   max: 1,
+      //   duration: 3000,
+      //   groupKey: "token",
+      // },
+      concurrency: 30,
     }
   ).on("failed", handleError);
 }

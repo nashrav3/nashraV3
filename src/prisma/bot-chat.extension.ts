@@ -4,6 +4,14 @@ export default Prisma.defineExtension({
   name: "botChat",
   model: {
     botChat: {
+      byBotIdChatId(botId: number, chatId: number) {
+        return {
+          botId_chatId: {
+            botId,
+            chatId,
+          },
+        } satisfies Prisma.BotChatWhereUniqueInput;
+      },
       canSend() {
         return {
           AND: [
@@ -35,6 +43,12 @@ export default Prisma.defineExtension({
               OR: [
                 { notMember: { equals: false } },
                 { notMember: { equals: null } },
+              ],
+            },
+            {
+              OR: [
+                { botKicked: { equals: false } },
+                { botKicked: { equals: null } },
               ],
             },
           ],
