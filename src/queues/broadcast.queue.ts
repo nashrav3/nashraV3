@@ -1,7 +1,7 @@
-import { MessageEntity, UserFromGetMe } from "@grammyjs/types";
+import { UserFromGetMe } from "@grammyjs/types";
 import type { Prisma } from "@prisma/client";
 import { Job, Queue, Worker } from "bullmq";
-import { Bot, GrammyError, InlineKeyboard } from "grammy";
+import { Bot, GrammyError } from "grammy";
 import type Redis from "ioredis";
 import type { Container } from "~/container";
 import type { PrismaClientX } from "~/prisma";
@@ -10,47 +10,15 @@ export const sendBroadcast = async (
   jobBot: Bot,
   post: Prisma.PostGetPayload<{
     select: {
-      text: true;
-      photo: true;
-      video: true;
-      audio: true;
-      voice: true;
-      animation: true;
-      document: true;
-      sticker: true;
-      hasMediaSpoiler: true;
-      caption: true;
-      captionEntities: true;
-      replyMarkup: true;
-      entities: true;
+      type: true;
+      fileId: true;
+      postOptions: true;
     };
   }>,
   chatId: number
 ) => {
-  const {
-    text,
-    photo,
-    video,
-    audio,
-    voice,
-    animation,
-    document,
-    sticker,
-    hasMediaSpoiler,
-    caption,
-    captionEntities,
-    replyMarkup,
-    entities,
-  } = post;
+  // const { type, fileId, text } = post;
 
-  const replyOptions = {
-    parse_mode: undefined,
-    reply_markup: replyMarkup as unknown as InlineKeyboard,
-    entities: entities as unknown as MessageEntity[],
-    caption: caption || undefined,
-    caption_entities: captionEntities as unknown as MessageEntity[],
-    has_spoiler: hasMediaSpoiler || undefined,
-  };
   return jobBot.api.sendChatAction(chatId, "typing");
   // if (text) return jobBot.api.sendMessage(chatId, text, replyOptions);
   // if (photo) return jobBot.api.sendPhoto(chatId, photo, replyOptions);
@@ -64,27 +32,14 @@ export const sendBroadcast = async (
 };
 
 export type BroadcastData = {
-  botInfo: UserFromGetMe;
   chatId: number;
-  serialId: number;
-  cursor: number;
-  batchSize: number;
   token: string;
   post: Prisma.PostGetPayload<{
     select: {
       text: true;
-      photo: true;
-      video: true;
-      audio: true;
-      voice: true;
-      animation: true;
-      document: true;
-      sticker: true;
-      hasMediaSpoiler: true;
-      caption: true;
-      captionEntities: true;
-      replyMarkup: true;
-      entities: true;
+      type: true;
+      fileId: true;
+      postOptions: true;
     };
   }>;
 };
@@ -114,13 +69,11 @@ export function createBroadcastWorker({
   return new Worker<BroadcastData>(
     queueName,
     async (job) => {
-      const {
-        token,
-        chatId,
-        post,
-        botInfo: { id: botId },
-      } = job.data;
-      const jobBot = new Bot(token, { botInfo: job.data.botInfo });
+      const { token, chatId, post } = job.data;
+      const botId = Number(token.split(":")[0]);
+      const jobBot = new Bot(token, {
+        botInfo: { id: botId } as UserFromGetMe,
+      });
       await sendBroadcast(jobBot, post, chatId).catch(
         async (err: GrammyError) => {
           const commonData = {
@@ -131,11 +84,18 @@ export function createBroadcastWorker({
             "Forbidden: user is deactivated": { deactivated: true },
             "Forbidden: bot was blocked by the user": { botBlocked: true },
             "Bad Request: chat not found": { notFound: true },
+            "Bad Request: PEER_ID_INVALID": { notFound: true },
             "Forbidden: bot is not a member of the channel chat": {
               notMember: true,
             },
             "Bad Request: need administrator rights in the channel chat": {
               needAdminRights: true,
+            },
+            "Bad Request: CHAT_WRITE_FORBIDDEN": {
+              needAdminRights: true,
+            },
+            "Forbidden: bot was kicked from the supergroup chat": {
+              botKicked: true,
             },
           };
 
@@ -153,12 +113,12 @@ export function createBroadcastWorker({
     },
     {
       connection,
-      // limiter: {
-      //   max: 1,
-      //   duration: 3000,
-      //   groupKey: "token",
-      // },
-      concurrency: 30,
+      limiter: {
+        max: 21,
+        duration: 1000,
+        groupKey: "token",
+      },
+      concurrency: 10,
     }
   ).on("failed", handleError);
 }

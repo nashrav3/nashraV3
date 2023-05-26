@@ -1,42 +1,119 @@
+import {
+  ForceReply,
+  InlineKeyboardMarkup,
+  MessageEntity,
+  ReplyKeyboardMarkup,
+  ReplyKeyboardRemove,
+} from "@grammyjs/types";
+import { PostType, Prisma } from "@prisma/client";
 import { Composer } from "grammy";
 import type { Context } from "~/bot/context";
 import { logHandle } from "~/bot/helpers/logging";
 
-const composer = new Composer<Context>();
+interface PostOptions {
+  reply_markup?:
+    | InlineKeyboardMarkup
+    | ReplyKeyboardMarkup
+    | ReplyKeyboardRemove
+    | ForceReply;
+  caption?: string;
+  caption_entities?: MessageEntity[];
+  entities?: MessageEntity[];
+  has_spoiler?: boolean;
+}
 
+const composer = new Composer<Context>();
 const feature = composer.chatType("private");
 
 feature.on(
   "msg:forward_date",
   logHandle("forwarded-createpost"),
   async (ctx) => {
-    const newPost = await ctx.prisma.post.create({
-      data: {
-        chatId: ctx.from.id,
-        botId: ctx.me.id,
-        text: ctx.message.text,
-        entities: JSON.stringify(ctx.message.entities),
-        replyMarkup: JSON.stringify(ctx.message.reply_markup),
-        mediaGroupId: ctx.message.media_group_id,
-        animation: ctx.message.animation?.file_id,
-        audio: ctx.message.audio?.file_id,
-        document: ctx.message.document?.file_id,
-        photo: ctx.message?.photo?.[0].file_id,
-        sticker: ctx.message.sticker?.file_id,
-        video: ctx.message.video?.file_id,
-        videoNote: ctx.message.video_note?.file_id,
-        voice: ctx.message.voice?.file_id,
-        caption: ctx.message.caption,
-        captionEntities: JSON.stringify(ctx.message.caption_entities),
-        hasMediaSpoiler: ctx.message.has_media_spoiler,
-        dice: ctx.message.dice?.emoji,
-        game: JSON.stringify(ctx.message.game),
-        poll: JSON.stringify(ctx.message.poll),
-        venue: JSON.stringify(ctx.message.venue),
-        location: JSON.stringify(ctx.message.location),
+    const { msg } = ctx;
+    let fileId: string | undefined;
+    const postType: PostType | undefined = [
+      "animation",
+      "audio",
+      "document",
+      "photo",
+      "sticker",
+      "video",
+      "video_note",
+      "voice",
+      "text",
+    ].find((type) => type in msg) as PostType | undefined;
+
+    if (!postType || msg.media_group_id)
+      return ctx.reply(ctx.t(`create-post.not-supported`));
+
+    if (postType === "photo") fileId = msg.photo?.[0].file_id;
+    else if (postType === "text") fileId = undefined;
+    else fileId = msg[postType]?.file_id;
+
+    const postOptions: PostOptions = {};
+    if (msg.reply_markup) postOptions.reply_markup = msg.reply_markup;
+    if (msg.caption) postOptions.caption = msg.caption;
+    if (msg.caption_entities)
+      postOptions.caption_entities = msg.caption_entities;
+    if (msg.entities) postOptions.entities = msg.entities;
+    if (msg.has_media_spoiler) postOptions.has_spoiler = true;
+
+    const postData: Prisma.Without<
+      Prisma.PostCreateInput,
+      Prisma.PostUncheckedCreateInput
+    > &
+      Prisma.PostUncheckedCreateInput = {
+      postNumber: 0,
+      chatId: ctx.from.id,
+      botId: ctx.me.id,
+      type: postType,
+    };
+    if (msg.text) postData.text = msg.text;
+    if (fileId) postData.fileId = fileId;
+    if (Object.keys(postOptions).length > 0)
+      postData.postOptions = JSON.stringify(postOptions);
+    if (ctx.msg.media_group_id) postData.mediaGroupId = ctx.msg.media_group_id;
+
+    const newPost = await ctx.prisma.$transaction(
+      async (tx) => {
+        const bot = await tx.bot.update({
+          where: {
+            botId: ctx.me.id,
+          },
+          data: {
+            postNumberCounter: {
+              increment: 1,
+            },
+          },
+        });
+
+        const newPostNumber = bot.postNumberCounter;
+        const post = await tx.post.create({
+          data: {
+            ...postData,
+            postNumber: newPostNumber,
+          },
+          // {
+          //   chatId: ctx.from.id,
+          //   postNumber: newPostNumber,
+          //   botId: ctx.me.id,
+          //   type: postType,
+          //   text: ctx.message.text,
+          //   fileId,
+          //   mediaGroupId: ctx.message.media_group_id,
+          //   postOptions: JSON.stringify(postOptions),
+          // }
+        });
+        return post;
       },
-    });
-    await ctx.reply(`/p ${newPost.postId} created`);
+      {
+        isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+      }
+    );
+
+    return newPost
+      ? ctx.reply(`<code>/p ${newPost.postNumber}</code> created`)
+      : ctx.reply("Error");
   }
 );
 

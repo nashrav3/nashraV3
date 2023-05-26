@@ -6,7 +6,7 @@ export const setScope = (): Middleware<Context> => async (ctx, next) => {
     const { language_code: languageCode } = ctx.from;
     const { type: chatType, id: chatId } = ctx.chat;
     const { id: botId } = ctx.me;
-
+    const name = chatType === "private" ? ctx.chat.first_name : ctx.chat.title;
     ctx.scope.chat = await ctx.prisma.chat.upsert({
       where: {
         chatId,
@@ -14,6 +14,7 @@ export const setScope = (): Middleware<Context> => async (ctx, next) => {
       create: {
         chatId,
         chatType,
+        name,
         languageCode,
         bots: {
           create: {
@@ -27,6 +28,7 @@ export const setScope = (): Middleware<Context> => async (ctx, next) => {
       },
       update: {
         chatId,
+        name,
         languageCode,
         bots: {
           upsert: {
@@ -54,6 +56,7 @@ export const setScope = (): Middleware<Context> => async (ctx, next) => {
       },
       select: {
         chatId: true,
+        name: true,
         languageCode: true,
         // ...ctx.prisma.chat.withRoles(),
       },

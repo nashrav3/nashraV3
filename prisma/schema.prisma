@@ -23,39 +23,32 @@ model Chat {
 }
 
 model Bot {
-  botId     BigInt    @id @unique @map("bot_id")
-  token     String    @unique
-  username  String    @db.VarChar(255)
-  firstName String    @default("bot_name") @map("first_name") @db.VarChar(255) //longest name for a bot in nashrabot db is 206
-  posts     Post[]
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
-  chats     BotChat[]
+  botId             BigInt    @id @unique @map("bot_id")
+  token             String    @unique
+  username          String    @db.VarChar(255)
+  firstName         String    @default("bot_name") @map("first_name") @db.VarChar(255) //longest name for a bot in nashrabot db is 206
+  posts             Post[]
+  postNumberCounter Int       @default(0) @map("post_number_counter")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+  chats             BotChat[]
 
   @@map("bots")
 }
 
 model Post {
-  postId                Int        @id @unique @default(autoincrement()) @map("post_id")
-  Chat                  Chat       @relation(fields: [chatId], references: [chatId])
-  chatId                BigInt     @map("chat_id")
-  bot                   Bot        @relation(fields: [botId], references: [botId])
-  botId                 BigInt     @map("bot_id")
-  text                  String?    @db.VarChar(4096)
-  parseMode             ParseMode? @map("parse_mode")
-  entities              Json?
-  replyMarkup           Json?      @map("reply_markup")
-  mediaGroupId          String?    @map("media_group_id")
-  fileId                String?    @map("file_id")
-  type                  PostType
-  hasMediaSpoiler       Boolean?   @map("has_media_spoiler")
-  disableWebPagePreview Boolean?   @map("disable_web_page_preview")
-  dice                  String?
-  game                  Json?
-  poll                  Json?
-  venue                 Json?
-  location              Json?
-  createdAt             DateTime   @default(now()) @map("created_at")
+  postId       Int      @id @unique @default(autoincrement()) @map("post_id")
+  postNumber   Int      @map("post_number")
+  Chat         Chat     @relation(fields: [chatId], references: [chatId])
+  chatId       BigInt   @map("chat_id")
+  bot          Bot      @relation(fields: [botId], references: [botId])
+  botId        BigInt   @map("bot_id")
+  text         String?  @db.VarChar(4096)
+  mediaGroupId String?  @map("media_group_id")
+  fileId       String?  @map("file_id")
+  type         PostType
+  postOptions  Json?
+  createdAt    DateTime @default(now()) @map("created_at")
 
   @@map("posts")
 }
@@ -108,6 +101,5 @@ enum PostType {
   video
   video_note
   voice
-  dice
   text
 }

@@ -1,6 +1,5 @@
 import { chatAction } from "@grammyjs/auto-chat-action";
-import { MessageEntity } from "@grammyjs/types";
-import { Composer, InlineKeyboard } from "grammy";
+import { Composer } from "grammy";
 import type { Context } from "~/bot/context";
 import { logHandle } from "../helpers/logging";
 
@@ -13,47 +12,29 @@ feature.command(
   logHandle("preview-post"),
   chatAction("typing"),
   async (ctx) => {
-    const postId = parseInt(ctx.match, 10);
+    const postNumber = parseInt(ctx.match, 10);
     const post = await ctx.prisma.post.findFirst({
       where: {
-        postId,
+        botId: ctx.me.id,
+        postNumber,
       },
     });
     if (!post) return ctx.reply(ctx.t("post_not_found"));
 
-    const {
-      text,
-      photo,
-      video,
-      audio,
-      voice,
-      animation,
-      document,
-      sticker,
-      hasMediaSpoiler,
-      caption,
-      captionEntities,
-      replyMarkup,
-      entities,
-    } = post;
+    const { type, fileId, text } = post;
+    const postOptions = JSON.parse(post.postOptions as string);
 
-    const replyOptions = {
-      parse_mode: undefined,
-      reply_markup: replyMarkup as unknown as InlineKeyboard,
-      entities: entities as unknown as MessageEntity[],
-      caption: caption || undefined,
-      caption_entities: captionEntities as unknown as MessageEntity[],
-      has_spoiler: hasMediaSpoiler || undefined,
-    };
-
-    if (text) return ctx.reply(text, replyOptions);
-    if (photo) return ctx.replyWithPhoto(photo, replyOptions);
-    if (video) return ctx.replyWithVideo(video, replyOptions);
-    if (audio) return ctx.replyWithAudio(audio, replyOptions);
-    if (document) return ctx.replyWithDocument(document, replyOptions);
-    if (sticker) return ctx.replyWithSticker(sticker, replyOptions);
-    if (animation) return ctx.replyWithAnimation(animation, replyOptions);
-    if (voice) return ctx.replyWithVoice(voice, replyOptions);
+    if (postOptions) postOptions.parse_mode = undefined;
+    if (type === "text" && text) return ctx.reply(text, postOptions);
+    if (typeof fileId !== "string") throw new Error(`WTF fileId not a string`);
+    if (type === "photo") return ctx.replyWithPhoto(fileId, postOptions);
+    if (type === "video") return ctx.replyWithVideo(fileId, postOptions);
+    if (type === "audio") return ctx.replyWithAudio(fileId, postOptions);
+    if (type === "document") return ctx.replyWithDocument(fileId, postOptions);
+    if (type === "sticker") return ctx.replyWithSticker(fileId, postOptions);
+    if (type === "animation")
+      return ctx.replyWithAnimation(fileId, postOptions);
+    if (type === "voice") return ctx.replyWithVoice(fileId, postOptions);
   }
 );
 

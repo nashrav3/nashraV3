@@ -49,8 +49,8 @@ export const createBot = (
   if (config.isDev) {
     bot.use(updateLogger());
   }
-  bot.use(setScope());
   bot.use(abdoIgnoreOld());
+  bot.use(setScope());
   bot.use(metrics());
   bot.use(autoChatAction(bot.api));
   bot.use(hydrateReply);
