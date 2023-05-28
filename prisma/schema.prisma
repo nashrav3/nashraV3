@@ -18,6 +18,7 @@ model Chat {
   createdAt    DateTime  @default(now()) @map("created_at")
   posts        Post[]
   bots         BotChat[]
+  sents        Sent[]
 
   @@map("chats")
 }
@@ -32,6 +33,7 @@ model Bot {
   createdAt         DateTime  @default(now()) @map("created_at")
   updatedAt         DateTime  @updatedAt @map("updated_at")
   chats             BotChat[]
+  sents             Sent[]
 
   @@map("bots")
 }
@@ -49,6 +51,7 @@ model Post {
   type         PostType
   postOptions  Json?
   createdAt    DateTime @default(now()) @map("created_at")
+  sents        Sent[]
 
   @@map("posts")
 }
@@ -71,6 +74,23 @@ model BotChat {
 
   @@unique([botId, chatId])
   @@map("bot_chat")
+}
+
+model Sent {
+  id            Int      @id @unique @default(autoincrement())
+  messageId     Int      @map("message_id")
+  postId        Int      @map("post_id")
+  chatId        BigInt   @map("chatId")
+  botId         BigInt   @map("bot_id")
+  toBeDeletedAt DateTime @map("to_be_deleted_at")
+  deleted       Boolean  @default(false)
+  post          Post     @relation(fields: [postId], references: [postId])
+  bot           Bot      @relation(fields: [botId], references: [botId])
+  chat          Chat     @relation(fields: [chatId], references: [chatId])
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@map("sents")
 }
 
 enum Role {

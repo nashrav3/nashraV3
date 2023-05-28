@@ -3,6 +3,8 @@ import type { Prisma } from "@prisma/client";
 import { Job, Queue, Worker } from "bullmq";
 import { Bot, GrammyError } from "grammy";
 import type Redis from "ioredis";
+import { errorMappings } from "~/bot/helpers/error-mapping";
+import { tokenToBotId } from "~/bot/helpers/token-to-id";
 import type { Container } from "~/container";
 import type { PrismaClientX } from "~/prisma";
 
@@ -34,6 +36,9 @@ export const sendBroadcast = async (
 export type BroadcastData = {
   chatId: number;
   token: string;
+  cursor: number;
+  batchSize: number;
+  serialId: number;
   post: Prisma.PostGetPayload<{
     select: {
       text: true;
@@ -70,7 +75,43 @@ export function createBroadcastWorker({
     queueName,
     async (job) => {
       const { token, chatId, post } = job.data;
-      const botId = Number(token.split(":")[0]);
+      const botId = tokenToBotId(token);
+
+      if (job.data.cursor === job.data.serialId) {
+        const chats = await prisma.botChat.findMany({
+          take: job.data.batchSize,
+          skip: 1,
+          cursor: {
+            id: job.data.cursor,
+          },
+          where: { botId },
+          orderBy: {
+            id: "asc",
+          },
+        });
+        const newCursor = chats[job.data.batchSize - 1].id;
+        chats.forEach((chat) => {
+          container.queues.broadcast.add(
+            `chatActionTyping`,
+            {
+              chatId: Number(chat.chatId),
+              serialId: chat.id,
+              cursor: newCursor,
+              batchSize: job.data.batchSize,
+              token: job.data.token,
+              post: job.data.post,
+            },
+            {
+              delay: 50 * chats.indexOf(chat),
+              parent: {
+                id: String(botId),
+                queue: "bull:broadcast-flows",
+              },
+            }
+          );
+        });
+      }
+
       const jobBot = new Bot(token, {
         botInfo: { id: botId } as UserFromGetMe,
       });
@@ -78,25 +119,6 @@ export function createBroadcastWorker({
         async (err: GrammyError) => {
           const commonData = {
             where: prisma.botChat.byBotIdChatId(botId, chatId),
-          };
-
-          const errorMappings: Record<string, { [key: string]: boolean }> = {
-            "Forbidden: user is deactivated": { deactivated: true },
-            "Forbidden: bot was blocked by the user": { botBlocked: true },
-            "Bad Request: chat not found": { notFound: true },
-            "Bad Request: PEER_ID_INVALID": { notFound: true },
-            "Forbidden: bot is not a member of the channel chat": {
-              notMember: true,
-            },
-            "Bad Request: need administrator rights in the channel chat": {
-              needAdminRights: true,
-            },
-            "Bad Request: CHAT_WRITE_FORBIDDEN": {
-              needAdminRights: true,
-            },
-            "Forbidden: bot was kicked from the supergroup chat": {
-              botKicked: true,
-            },
           };
 
           const errorDescription = err.description;

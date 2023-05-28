@@ -9,6 +9,12 @@ export default Prisma.defineExtension({
           postId,
         } satisfies Prisma.PostWhereInput;
       },
+      byPostNumber(postNumber: number, botId: number) {
+        return {
+          postNumber,
+          botId,
+        } satisfies Prisma.PostWhereInput;
+      },
       postSelectValues() {
         return {
           text: true,
