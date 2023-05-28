@@ -89,11 +89,10 @@ export function createBroadcastFlowsWorker({
                   batchSize,
                   post: {
                     type: post.type,
-                    // to remove unnecesary null values in job data
-                    text: post.text ? post.text : null,
-                    fileId: post.fileId ? post.fileId : null,
-                    postOptions: post.postOptions ? post.postOptions : null,
-                  }, // TODO: all jobs in a flow have same post so make it in one place and make jobs able to access it to save memory
+                    text: post.text,
+                    fileId: post.fileId,
+                    postOptions: post.postOptions,
+                  },
                 },
                 opts: {
                   parent: {
