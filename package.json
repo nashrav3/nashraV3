@@ -27,7 +27,7 @@
     "@grammyjs/storage-redis": "2.2.0",
     "@grammyjs/types": "3.0.3",
     "@prisma/client": "4.12.0",
-    "bullmq": "2.4.0",
+    "bullmq": "3.14.1",
     "callback-data": "1.0.2",
     "dotenv": "16.0.3",
     "fastify": "4.15.0",

@@ -3,6 +3,7 @@ import { FlowChildJob, FlowProducer } from "bullmq";
 import { Composer } from "grammy";
 import type { Context } from "~/bot/context";
 import { logHandle } from "~/bot/helpers/logging";
+import { BroadcastFlowsData } from "~/queues";
 
 const composer = new Composer<Context>();
 const feature = composer.chatType("private");
@@ -56,9 +57,6 @@ feature.command(
           }, // TODO: all jobs in a flow have same post so make it in one place and make jobs able to access it to save memory
         },
         queueName: "broadcast",
-        opts: {
-          rateLimiterKey: "token",
-        },
       } satisfies FlowChildJob;
     });
     const broadcastFlow = new FlowProducer({ connection: redis });
@@ -70,9 +68,14 @@ feature.command(
         botInfo: ctx.me,
         chatId: Number(ctx.chat.id),
         token,
-      },
+        post,
+        batchSize,
+        cursor,
+        step: 0,
+      } satisfies BroadcastFlowsData,
       opts: {
         jobId: `${botId}`,
+        attempts: 1000,
       },
     });
   }

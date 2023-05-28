@@ -19,6 +19,7 @@ export default Prisma.defineExtension({
         return {
           text: true,
           fileId: true,
+          type: true,
           postOptions: true,
         } satisfies Prisma.PostSelect;
       },

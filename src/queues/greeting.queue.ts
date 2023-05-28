@@ -15,9 +15,6 @@ const queueName = "greeting";
 export function createGreetingQueue({ connection }: { connection: Redis }) {
   return new Queue<GreetingData>(queueName, {
     connection,
-    limiter: {
-      groupKey: "token",
-    },
   });
 }
 
@@ -42,7 +39,6 @@ export function createGreetingWorker({
       limiter: {
         max: 1,
         duration: 1000,
-        groupKey: "token",
       },
     }
   ).on("failed", handleError);

@@ -54,9 +54,6 @@ const queueName = "broadcast";
 export function createBroadcastQueue({ connection }: { connection: Redis }) {
   return new Queue<BroadcastData>(queueName, {
     connection,
-    limiter: {
-      groupKey: "token",
-    },
   });
 }
 
@@ -76,41 +73,6 @@ export function createBroadcastWorker({
     async (job) => {
       const { token, chatId, post } = job.data;
       const botId = tokenToBotId(token);
-
-      if (job.data.cursor === job.data.serialId) {
-        const chats = await prisma.botChat.findMany({
-          take: job.data.batchSize,
-          skip: 1,
-          cursor: {
-            id: job.data.cursor,
-          },
-          where: { botId },
-          orderBy: {
-            id: "asc",
-          },
-        });
-        const newCursor = chats[job.data.batchSize - 1].id;
-        chats.forEach((chat) => {
-          container.queues.broadcast.add(
-            `chatActionTyping`,
-            {
-              chatId: Number(chat.chatId),
-              serialId: chat.id,
-              cursor: newCursor,
-              batchSize: job.data.batchSize,
-              token: job.data.token,
-              post: job.data.post,
-            },
-            {
-              delay: 50 * chats.indexOf(chat),
-              parent: {
-                id: String(botId),
-                queue: "bull:broadcast-flows",
-              },
-            }
-          );
-        });
-      }
 
       const jobBot = new Bot(token, {
         botInfo: { id: botId } as UserFromGetMe,
@@ -135,11 +97,6 @@ export function createBroadcastWorker({
     },
     {
       connection,
-      limiter: {
-        max: 21,
-        duration: 1000,
-        groupKey: "token",
-      },
       concurrency: 10,
     }
   ).on("failed", handleError);
