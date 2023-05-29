@@ -57,8 +57,8 @@ export function createBroadcastFlowsWorker({
   return new Worker<BroadcastFlowsData>(
     queueName,
     async (job, saidToken) => {
-      if (!saidToken) return new Error("saidToken is required!!!!!!");
-      if (!job.id) return new Error("job has no Id!!!!!!!!!!!!!!!!!!!!!!!");
+      if (!saidToken) return new Error("saidToken is required!");
+      if (!job.id) return new Error("job has no Id!");
 
       const { id: botId, username: botUsername } = job.data.botInfo;
       const { token, post } = job.data;
@@ -95,10 +95,12 @@ export function createBroadcastFlowsWorker({
                   },
                 },
                 opts: {
+                  delay: 100 * chats.indexOf(chat),
                   parent: {
                     id: job.id || "!!!!!!!!!!!!!!!!!!!",
                     queue: job.queueQualifiedName,
                   },
+                  removeOnComplete: true,
                 },
               };
             });
@@ -123,16 +125,9 @@ export function createBroadcastFlowsWorker({
               },
             });
 
-            if (chats.length === 0) {
-              await job.update({
-                ...job.data,
-                step: Step.Finish,
-              });
-              step = Step.Finish;
-              break;
-            }
-
-            const newCursor = chats[chats.length - 1].id; // Use the last chat's ID as the new cursor
+            const newCursor = chats[chats.length - 1]
+              ? chats[chats.length - 1].id
+              : 0; // Use the last chat's ID as the new cursor
             chats.forEach((chat) => {
               container.queues.broadcast.add(
                 `chatActionTyping`,
@@ -150,14 +145,16 @@ export function createBroadcastFlowsWorker({
                     id: job.id || "!!!!!!!!!!!!!!!!!!!!!!!!!!!!",
                     queue: job.queueQualifiedName,
                   },
+                  removeOnComplete: true,
                 }
               );
             });
             await job.update({
               ...job.data,
-              step: Step.Second,
+              step: Step.Third,
               cursor: newCursor, // Update the cursor for the next iteration
             });
+            step = Step.Third;
             break;
           }
           case Step.Third: {
@@ -170,6 +167,11 @@ export function createBroadcastFlowsWorker({
               step = Step.Finish;
               return Step.Finish;
             }
+            await job.update({
+              ...job.data,
+              step: Step.Second,
+            });
+            step = Step.Second;
             throw new WaitingChildrenError();
           }
           default: {

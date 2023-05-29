@@ -20,7 +20,6 @@ feature.command(
       select: ctx.prisma.post.postSelectValues(),
     });
     if (!post) return ctx.reply(ctx.t("post_not_found"));
-
     const { redis } = ctx.container;
     const batchSize = 20;
 
@@ -74,7 +73,7 @@ feature.command(
         step: 0,
       } satisfies BroadcastFlowsData,
       opts: {
-        jobId: `${botId}`,
+        jobId: `B${botId}`,
         attempts: 1000,
       },
     });
