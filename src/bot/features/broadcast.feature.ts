@@ -3,11 +3,11 @@ import { FlowChildJob, FlowProducer } from "bullmq";
 import { Composer } from "grammy";
 import type { Context } from "~/bot/context";
 import { logHandle } from "~/bot/helpers/logging";
+import { config } from "~/config";
 import { BroadcastFlowsData } from "~/queues";
 
 const composer = new Composer<Context>();
-const feature = composer.chatType("private");
-let noMore = false;
+const feature = composer;
 feature.command(
   "broadcast",
   logHandle("command-broadcast"),
@@ -21,23 +21,24 @@ feature.command(
     });
     if (!post) return ctx.reply(ctx.t("post_not_found"));
     const { redis } = ctx.container;
-    const batchSize = 20;
 
     const { token } = await ctx.prisma.bot.findUniqueOrThrow({
       where: ctx.prisma.bot.byBotId(botId),
       select: { token: true },
     });
-    if (noMore) return ctx.reply(ctx.t("no_more_broadcasts"));
-    noMore = true;
-    ctx.reply(ctx.t("please-wait"));
+
+    const statusMessage = await ctx.reply(ctx.t("please-wait"));
+    const totalCount = await ctx.prisma.botChat.count({
+      where: { botId, ...ctx.prisma.botChat.canSend() },
+    });
     const chats = await ctx.prisma.botChat.findMany({
       where: { botId, ...ctx.prisma.botChat.canSend() },
       orderBy: {
         id: "asc",
       },
-      take: batchSize,
+      take: config.BATCH_SIZE,
     });
-    const cursor = chats[batchSize - 1].id;
+    const cursor = chats[chats.length - 1] ? chats[chats.length - 1].id : 0; // Use the last chat's ID as the new cursor
 
     const children = chats.map((chat) => {
       return {
@@ -47,7 +48,6 @@ feature.command(
           token,
           serialId: chat.id,
           cursor,
-          batchSize,
           post: {
             // to remove unnecesary null values in job data
             text: post.text ? post.text : undefined,
@@ -66,10 +66,12 @@ feature.command(
       data: {
         botInfo: ctx.me,
         chatId: Number(ctx.chat.id),
+        statusMessageId: statusMessage.message_id,
         token,
         post,
-        batchSize,
         cursor,
+        totalCount,
+        doneCount: 0,
         step: 0,
       } satisfies BroadcastFlowsData,
       opts: {

@@ -12,6 +12,7 @@ export const sendBroadcast = async (
   jobBot: Bot,
   post: Prisma.PostGetPayload<{
     select: {
+      text: true;
       type: true;
       fileId: true;
       postOptions: true;
@@ -19,25 +20,30 @@ export const sendBroadcast = async (
   }>,
   chatId: number
 ) => {
-  // const { type, fileId, text } = post;
+  const { type, fileId, text, postOptions } = post;
+  const opts = JSON.parse(postOptions as string);
 
-  return jobBot.api.sendChatAction(chatId, "typing");
-  // if (text) return jobBot.api.sendMessage(chatId, text, replyOptions);
-  // if (photo) return jobBot.api.sendPhoto(chatId, photo, replyOptions);
-  // if (video) return jobBot.api.sendVideo(chatId, video, replyOptions);
-  // if (audio) return jobBot.api.sendAudio(chatId, audio, replyOptions);
-  // if (document) return jobBot.api.sendDocument(chatId, document, replyOptions);
-  // if (sticker) return jobBot.api.sendSticker(chatId, sticker, replyOptions);
-  // if (animation)
-  //   return jobBot.api.sendAnimation(chatId, animation, replyOptions);
-  // if (voice) return jobBot.api.sendVoice(chatId, voice, replyOptions);
+  // eslint-disable-next-line no-constant-condition
+  if (1) return jobBot.api.getChat(chatId);
+
+  if (text) return jobBot.api.sendMessage(chatId, text, opts);
+  if (!fileId)
+    // TODO: fix very bad
+    return jobBot.api.sendMessage(chatId, "broadcast.no_file_id", opts);
+  if (type === "photo") return jobBot.api.sendPhoto(chatId, fileId, opts);
+  if (type === "video") return jobBot.api.sendVideo(chatId, fileId, opts);
+  if (type === "audio") return jobBot.api.sendAudio(chatId, fileId, opts);
+  if (type === "document") return jobBot.api.sendDocument(chatId, fileId, opts);
+  if (type === "sticker") return jobBot.api.sendSticker(chatId, fileId, opts);
+  if (type === "animation")
+    return jobBot.api.sendAnimation(chatId, fileId, opts);
+  if (type === "voice") return jobBot.api.sendVoice(chatId, fileId, opts);
 };
 
 export type BroadcastData = {
   chatId: number;
   token: string;
   cursor: number;
-  batchSize: number;
   serialId: number;
   post: Prisma.PostGetPayload<{
     select: {
@@ -71,14 +77,14 @@ export function createBroadcastWorker({
   return new Worker<BroadcastData>(
     queueName,
     async (job) => {
-      const { token, chatId, post } = job.data;
+      const { token, chatId, post, serialId } = job.data;
       const botId = tokenToBotId(token);
 
       const jobBot = new Bot(token, {
         botInfo: { id: botId } as UserFromGetMe,
       });
-      await sendBroadcast(jobBot, post, chatId).catch(
-        async (err: GrammyError) => {
+      await sendBroadcast(jobBot, post, chatId)
+        .catch(async (err: GrammyError) => {
           const commonData = {
             where: prisma.botChat.byBotIdChatId(botId, chatId),
           };
@@ -91,13 +97,36 @@ export function createBroadcastWorker({
               ...commonData,
               data: specificData,
             });
-          } else throw err;
-        }
-      );
+            job.updateProgress({
+              ok: false,
+              chatId,
+              serialId,
+              errorDescription,
+            });
+          }
+        })
+        .then(async () => {
+          job.updateProgress({
+            ok: true,
+            chatId,
+            serialId,
+          });
+        });
     },
     {
       connection,
       concurrency: 10,
     }
   ).on("failed", handleError);
+  // .on(
+  //   "progress",
+  //   (job: Job<BroadcastData, unknown, string>, progress: object | number) => {
+  //     if (!job) return;
+  //     const { chatId, serialId } = job.data;
+  //     container.logger.info(
+  //       `Broadcast job progress ${JSON.stringify(progress)}`,
+  //       { chatId }
+  //     );
+  //   }
+  // );
 }

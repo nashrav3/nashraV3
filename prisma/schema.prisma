@@ -14,11 +14,13 @@ model Chat {
   name         String?
   chatType     ChatType  @map("chat_type")
   languageCode String?   @map("language_code")
+  username     String?
   updatedAt    DateTime  @updatedAt @map("updated_at")
   createdAt    DateTime  @default(now()) @map("created_at")
   posts        Post[]
   bots         BotChat[]
   sents        Sent[]
+  list         List[]
 
   @@map("chats")
 }
@@ -34,6 +36,7 @@ model Bot {
   updatedAt         DateTime  @updatedAt @map("updated_at")
   chats             BotChat[]
   sents             Sent[]
+  list              List[]
 
   @@map("bots")
 }
@@ -77,20 +80,28 @@ model BotChat {
 }
 
 model Sent {
-  id            Int      @id @unique @default(autoincrement())
-  messageId     Int      @map("message_id")
-  postId        Int      @map("post_id")
-  chatId        BigInt   @map("chatId")
-  botId         BigInt   @map("bot_id")
-  toBeDeletedAt DateTime @map("to_be_deleted_at")
-  deleted       Boolean  @default(false)
-  post          Post     @relation(fields: [postId], references: [postId])
-  bot           Bot      @relation(fields: [botId], references: [botId])
-  chat          Chat     @relation(fields: [chatId], references: [chatId])
-  updatedAt     DateTime @updatedAt @map("updated_at")
-  createdAt     DateTime @default(now()) @map("created_at")
+  id            Int       @id @unique @default(autoincrement())
+  messageId     Int       @map("message_id")
+  postId        Int       @map("post_id")
+  chatId        BigInt    @map("chatId")
+  botId         BigInt    @map("bot_id")
+  toBeDeletedAt DateTime? @map("to_be_deleted_at")
+  deleted       Boolean   @default(false)
+  post          Post      @relation(fields: [postId], references: [postId])
+  bot           Bot       @relation(fields: [botId], references: [botId])
+  chat          Chat      @relation(fields: [chatId], references: [chatId])
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
 
   @@map("sents")
+}
+
+model List {
+  id     Int    @id @unique @default(autoincrement())
+  chatId BigInt @map("chatId")
+  botId  BigInt @map("bot_id")
+  bot    Bot    @relation(fields: [botId], references: [botId])
+  chat   Chat   @relation(fields: [chatId], references: [chatId])
 }
 
 enum Role {

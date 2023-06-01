@@ -2,4 +2,4 @@ GrammyError: Call to 'sendChatAction' failed! (400: Bad Request: CHAT_WRITE_FORB
 GrammyError: Call to 'sendChatAction' failed! (403: Forbidden: bot was kicked from the supergroup chat)
 GrammyError: Call to 'sendChatAction' failed! (400: Bad Request: PEER_ID_INVALID)
 GrammyError: Call to 'sendChatAction' failed! (429: Too Many Requests: retry after 2)
-
+Bad Request: USER_IS_BOT

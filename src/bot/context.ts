@@ -13,7 +13,7 @@ import { PrismaClientX } from "~/prisma";
 
 type ScopeChat = Omit<
   ChatPayload<PrismaClientX["$extends"]["extArgs"]>["scalars"],
-  "updatedAt" | "createdAt" | "chatType"
+  "updatedAt" | "createdAt" | "chatType" | "username"
 >;
 
 export interface ContextScope {

@@ -2,7 +2,12 @@
 import { UserFromGetMe } from "@grammyjs/types";
 import { Prisma } from "@prisma/client";
 import { Job, Queue, WaitingChildrenError, Worker } from "bullmq";
+import { Bot } from "grammy";
 import type Redis from "ioredis";
+import { progressBar } from "~/bot/helpers/progress-bar";
+import { getRandomEmojiString } from "~/bot/helpers/random-emojis";
+import { tokenToBotId } from "~/bot/helpers/token-to-id";
+import { config } from "~/config";
 import type { Container } from "~/container";
 import type { PrismaClientX } from "~/prisma";
 
@@ -17,9 +22,11 @@ enum Step {
 export type BroadcastFlowsData = {
   botInfo: UserFromGetMe;
   chatId: number;
+  statusMessageId: number;
   step: Step;
   token: string;
-  batchSize: number;
+  totalCount: number;
+  doneCount: number;
   cursor: number;
   post: Prisma.PostGetPayload<{
     select: {
@@ -61,8 +68,7 @@ export function createBroadcastFlowsWorker({
       if (!job.id) return new Error("job has no Id!");
 
       const { id: botId, username: botUsername } = job.data.botInfo;
-      const { token, post } = job.data;
-      const batchSize = 20;
+      const { token, post, totalCount, doneCount } = job.data;
 
       let { step } = job.data;
       while (step !== Step.Finish) {
@@ -73,9 +79,11 @@ export function createBroadcastFlowsWorker({
               orderBy: {
                 id: "asc",
               },
-              take: batchSize,
+              take: config.BATCH_SIZE,
             });
-            const cursor = chats[batchSize - 1].id;
+            const cursor = chats[chats.length - 1]
+              ? chats[chats.length - 1].id
+              : 0; // Use the last chat's ID as the new cursor
 
             // eslint-disable-next-line no-loop-func
             const children = chats.map((chat) => {
@@ -86,7 +94,6 @@ export function createBroadcastFlowsWorker({
                   token,
                   serialId: chat.id,
                   cursor,
-                  batchSize,
                   post: {
                     type: post.type,
                     text: post.text,
@@ -100,7 +107,7 @@ export function createBroadcastFlowsWorker({
                     id: job.id || "!!!!!!!!!!!!!!!!!!!",
                     queue: job.queueQualifiedName,
                   },
-                  removeOnComplete: true,
+                  removeOnComplete: false,
                 },
               };
             });
@@ -114,7 +121,7 @@ export function createBroadcastFlowsWorker({
           }
           case Step.Second: {
             const chats = await prisma.botChat.findMany({
-              take: job.data.batchSize,
+              take: config.BATCH_SIZE,
               skip: 1,
               cursor: {
                 id: job.data.cursor,
@@ -135,7 +142,6 @@ export function createBroadcastFlowsWorker({
                   chatId: Number(chat.chatId),
                   serialId: chat.id,
                   cursor: newCursor,
-                  batchSize: job.data.batchSize,
                   token: job.data.token,
                   post: job.data.post,
                 },
@@ -145,7 +151,7 @@ export function createBroadcastFlowsWorker({
                     id: job.id || "!!!!!!!!!!!!!!!!!!!!!!!!!!!!",
                     queue: job.queueQualifiedName,
                   },
-                  removeOnComplete: true,
+                  removeOnComplete: false,
                 }
               );
             });
@@ -160,6 +166,7 @@ export function createBroadcastFlowsWorker({
           case Step.Third: {
             const shouldWait = await job.moveToWaitingChildren(saidToken);
             if (!shouldWait) {
+              job.updateProgress({ ok: true, finished: true });
               await job.update({
                 ...job.data,
                 step: Step.Finish,
@@ -169,7 +176,14 @@ export function createBroadcastFlowsWorker({
             }
             await job.update({
               ...job.data,
+              doneCount: doneCount + config.BATCH_SIZE,
               step: Step.Second,
+            });
+            job.updateProgress({
+              ok: true,
+              finished: false,
+              doneCount: job.data.doneCount,
+              totalCount,
             });
             step = Step.Second;
             throw new WaitingChildrenError();
@@ -183,5 +197,51 @@ export function createBroadcastFlowsWorker({
     {
       connection,
     }
-  ).on("failed", handleError);
+  )
+    .on("failed", handleError)
+    .on(
+      "progress",
+      async (job: Job<BroadcastFlowsData>, progress: object | number) => {
+        const { chatId, doneCount, totalCount, token, statusMessageId } =
+          job.data;
+        const botId = tokenToBotId(token);
+
+        const jobBot = new Bot(token, {
+          botInfo: { id: botId } as UserFromGetMe,
+        });
+        // const pb = progressBar(doneCount, totalCount, 20);
+        let pb = "";
+        pb =
+          // Array(pb.length).fill("\b").join("") +
+          progressBar({
+            value: doneCount,
+            length: 20,
+            vmin: 0,
+            vmax: totalCount,
+            progressive: false,
+          });
+        const statusMessageText = `Broadcasting to ${totalCount}\n\n${pb}\n\n${getRandomEmojiString()} `;
+        jobBot.api
+          .editMessageText(chatId, statusMessageId, statusMessageText, {
+            parse_mode: "HTML",
+          })
+          .catch(async (e) => {
+            // eslint-disable-next-line no-console
+            if (e.error_code === 400) {
+              const statusMessage = await jobBot.api.sendMessage(
+                chatId,
+                statusMessageText,
+                {
+                  parse_mode: "HTML",
+                }
+              );
+              job.update({
+                ...job.data,
+                statusMessageId: statusMessage.message_id,
+              });
+            } else console.error(e);
+          });
+        container.logger.info(`${pb} progress ${JSON.stringify(progress)}`);
+      }
+    );
 }

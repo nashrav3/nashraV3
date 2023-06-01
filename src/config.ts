@@ -44,6 +44,7 @@ const configSchema = z.object({
   BOT_WEBHOOK: z.string().url(),
   WEBHOOK_URL: z.string().url(),
   BOT_ADMIN_USER_ID: z.coerce.number().finite(),
+  BATCH_SIZE: z.coerce.number().positive().default(30),
 });
 
 const parseConfig = (env: NodeJS.ProcessEnv) => {
