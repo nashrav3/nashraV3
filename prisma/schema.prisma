@@ -30,13 +30,14 @@ model Bot {
   token             String    @unique
   username          String    @db.VarChar(255)
   firstName         String    @default("bot_name") @map("first_name") @db.VarChar(255) //longest name for a bot in nashrabot db is 206
-  posts             Post[]
   postNumberCounter Int       @default(0) @map("post_number_counter")
-  createdAt         DateTime  @default(now()) @map("created_at")
-  updatedAt         DateTime  @updatedAt @map("updated_at")
+  group             BigInt?
+  posts             Post[]
   chats             BotChat[]
   sents             Sent[]
   list              List[]
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
 
   @@map("bots")
 }
@@ -97,11 +98,15 @@ model Sent {
 }
 
 model List {
-  id     Int    @id @unique @default(autoincrement())
-  chatId BigInt @map("chatId")
-  botId  BigInt @map("bot_id")
-  bot    Bot    @relation(fields: [botId], references: [botId])
-  chat   Chat   @relation(fields: [chatId], references: [chatId])
+  id        Int      @id @unique @default(autoincrement())
+  index     Int      @unique @default(autoincrement())
+  chatId    BigInt   @map("chatId")
+  botId     BigInt   @map("bot_id")
+  bot       Bot      @relation(fields: [botId], references: [botId])
+  chat      Chat     @relation(fields: [chatId], references: [chatId])
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("lists")
 }
 
 enum Role {

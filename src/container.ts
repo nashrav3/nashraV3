@@ -5,7 +5,7 @@ import { createPrisma } from "~/prisma";
 import {
   createBroadcastFlowsQueue,
   createBroadcastQueue,
-  createGreetingQueue,
+  createVerifyChatQueue,
 } from "~/queues";
 
 export const createAppContainer = () => {
@@ -21,7 +21,7 @@ export const createAppContainer = () => {
     prisma,
     redis,
     queues: {
-      greeting: createGreetingQueue({
+      verifyChat: createVerifyChatQueue({
         connection: redis,
       }),
       broadcast: createBroadcastQueue({

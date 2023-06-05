@@ -8,7 +8,7 @@ import { tokenToBotId } from "~/bot/helpers/token-to-id";
 import type { Container } from "~/container";
 import type { PrismaClientX } from "~/prisma";
 
-export const sendBroadcast = async (
+const sendBroadcast = async (
   jobBot: Bot,
   post: Prisma.PostGetPayload<{
     select: {

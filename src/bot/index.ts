@@ -7,12 +7,15 @@ import { Context, createContextConstructor } from "~/bot/context";
 import { createPostConversation } from "~/bot/conversations";
 import {
   addBotFeature,
+  addChannelFeature,
   broadcastFeature,
+  chatMemberFeature,
   createPostFeature,
   languageFeature,
   previewPostFeature,
+  setGroupFeature,
   unhandledFeature,
-  welcomeFeature,
+  verifyChatFeature,
 } from "~/bot/features";
 import { errorHandler } from "~/bot/handlers";
 import { isMultipleLocales } from "~/bot/i18n";
@@ -62,15 +65,17 @@ export const createBot = (
 
   // Handlers
 
-  bot.use(welcomeFeature);
+  bot.use(verifyChatFeature);
   bot.use(addBotFeature);
   bot.use(previewPostFeature);
   bot.use(createPostFeature);
+  bot.use(addChannelFeature);
   bot.use(broadcastFeature);
   if (isMultipleLocales) {
     bot.use(languageFeature);
   }
-
+  bot.use(chatMemberFeature);
+  bot.use(setGroupFeature);
   bot.use(unhandledFeature);
 
   if (config.isDev) {

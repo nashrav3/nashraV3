@@ -12,6 +12,16 @@ export default Prisma.defineExtension({
           },
         } satisfies Prisma.BotChatWhereUniqueInput;
       },
+      byBotIdNotPvOrGroup(botId: number) {
+        return {
+          botId,
+          chat: {
+            chatType: {
+              notIn: ["private", "group"],
+            },
+          },
+        } satisfies Prisma.BotChatWhereInput;
+      },
       canSend() {
         return {
           AND: [

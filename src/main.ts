@@ -6,7 +6,7 @@ import { createAppContainer } from "~/container";
 import {
   createBroadcastFlowsWorker,
   createBroadcastWorker,
-  createGreetingWorker,
+  createVerifyChatWorker,
 } from "~/queues";
 import { createServer } from "~/server";
 
@@ -62,10 +62,11 @@ try {
   await prisma.$connect();
 
   workers.push(
-    createGreetingWorker({
+    createVerifyChatWorker({
       connection: redis,
       handleError: handleWorkerError,
       prisma,
+      container,
     })
   );
 
