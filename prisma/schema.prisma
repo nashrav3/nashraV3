@@ -15,6 +15,7 @@ model Chat {
   chatType     ChatType  @map("chat_type")
   languageCode String?   @map("language_code")
   username     String?
+  link         String?
   updatedAt    DateTime  @updatedAt @map("updated_at")
   createdAt    DateTime  @default(now()) @map("created_at")
   posts        Post[]
@@ -106,6 +107,7 @@ model List {
   chat      Chat     @relation(fields: [chatId], references: [chatId])
   createdAt DateTime @default(now()) @map("created_at")
 
+  @@unique([chatId, botId])
   @@map("lists")
 }
 

@@ -8,8 +8,10 @@ const feature = composer.chatType("supergroup");
 feature.command("v", logHandle("command-verify"), async (ctx) => {
   const botId = ctx.me.id;
   const { queues } = ctx.container;
-  const chats = await ctx.prisma.botChat.findMany({
-    where: ctx.prisma.botChat.byBotIdNotPvOrGroup(botId),
+  const chats = await ctx.prisma.list.findMany({
+    where: {
+      botId,
+    },
     include: {
       chat: { select: { username: true } },
     },
@@ -25,6 +27,7 @@ feature.command("v", logHandle("command-verify"), async (ctx) => {
       {
         chatId: Number(chat.chatId),
         token,
+        languageCode: ctx.scope.chat?.languageCode || undefined,
         statusMessageId: statusMessage.message_id,
         statusMessageChatId: statusMessage.chat.id,
         doneCount: chats.indexOf(chat) + 1,
@@ -32,7 +35,7 @@ feature.command("v", logHandle("command-verify"), async (ctx) => {
         username: chat.chat.username ? `@${chat.chat.username}` : undefined,
       },
       {
-        delay: 100 * chats.indexOf(chat),
+        delay: 200 * chats.indexOf(chat),
       }
     );
   });

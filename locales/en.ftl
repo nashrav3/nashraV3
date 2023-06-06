@@ -27,3 +27,14 @@ admin =
     }.
     
     .commands-updated = Commands updated.
+
+verify-chat = 
+    .progress = Broadcasting to {$totalCount}
+    
+    {$pb}
+    {$errors}
+    
+    {$emojis}
+
+list =
+    .empty = you have no channels in the list :(

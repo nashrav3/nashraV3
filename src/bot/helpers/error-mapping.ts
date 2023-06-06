@@ -13,6 +13,9 @@ export const errorMappings: Record<string, { [key: string]: boolean }> = {
   "Bad Request: CHAT_WRITE_FORBIDDEN": {
     needAdminRights: true,
   },
+  "Bad Request: member list is inaccessible": {
+    needAdminRights: true,
+  },
   "Forbidden: bot was kicked from the supergroup chat": {
     botKicked: true,
   },
