@@ -46,47 +46,5 @@ feature.command(["a", "add"], logHandle("handle /add"), async (ctx) => {
       }
     );
   });
-
-  //   // eslint-disable-next-line no-restricted-syntax
-  //   for (const c of chats) {
-  //     const administrators = await ctx.api.getChatAdministrators(c);
-  //     const isAdmin = administrators.some(
-  //       (admin) =>
-  //         admin.user.id === ctx.from.id &&
-  //         admin.status === "administrator" &&
-  //         admin.can_post_messages &&
-  //         admin.can_invite_users
-  //     );
-  //     if (isAdmin) {
-  //       const chat = await ctx.api.getChat(c);
-  //       // eslint-disable-next-line no-continue
-  //       if (chat.type === "private" || chat.type === "group") continue;
-  //       await ctx.prisma.chat.upsert({
-  //         where: ctx.prisma.chat.byChatId(chat.id),
-  //         create: {
-  //           chatId: chat.id,
-  //           name: chat.title,
-  //           chatType: chat.type,
-  //           username: chat.username,
-  //           list: {
-  //             create: {
-  //               botId,
-  //             },
-  //           },
-  //         },
-  //         update: {
-  //           name: chat.title,
-  //           chatType: chat.type,
-  //           username: chat.username,
-  //           list: {
-  //             create: {
-  //               botId,
-  //             },
-  //           },
-  //         },
-  //       });
-  //     }
-  //   }
-  // });
 });
 export { composer as addChannelFeature };

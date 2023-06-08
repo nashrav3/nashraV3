@@ -33,6 +33,7 @@
     "fastify": "4.15.0",
     "grammy": "1.15.3",
     "grammy-guard": "0.5.0",
+    "grammy-inline-menu": "^8.0.0",
     "grammy-middlewares": "^1.0.11",
     "ioredis": "5.3.2",
     "iso-639-1": "2.1.15",

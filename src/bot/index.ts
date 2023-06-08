@@ -13,6 +13,7 @@ import {
   createPostFeature,
   languageFeature,
   listChatsFeature,
+  myBotsFeature,
   previewPostFeature,
   setGroupFeature,
   unhandledFeature,
@@ -72,6 +73,7 @@ export const createBot = (
   bot.use(createPostFeature);
   bot.use(addChannelFeature);
   bot.use(listChatsFeature);
+  bot.use(myBotsFeature);
   bot.use(broadcastFeature);
   if (isMultipleLocales) {
     bot.use(languageFeature);

@@ -2,6 +2,7 @@ import { Prisma } from "@prisma/client";
 
 export default Prisma.defineExtension({
   name: "botChat",
+  result: {},
   model: {
     botChat: {
       byBotIdChatId(botId: number, chatId: number) {
@@ -63,6 +64,23 @@ export default Prisma.defineExtension({
             },
           ],
         } satisfies Prisma.BotChatWhereInput;
+      },
+      removeFromListNeedAdminRights(chatId: number, botId: number) {
+        return {
+          needAdminRights: true,
+          chat: {
+            update: {
+              list: {
+                delete: {
+                  chatId_botId: {
+                    chatId,
+                    botId,
+                  },
+                },
+              },
+            },
+          },
+        } satisfies Prisma.BotChatUpdateInput;
       },
     },
   },

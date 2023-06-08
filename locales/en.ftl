@@ -38,3 +38,16 @@ verify-chat =
 
 list =
     .empty = you have no channels in the list :(
+
+chat-member = 
+    .bot-can-post = اصبح البوت ادمن في القناة هل تود اضافتها في اللستة؟
+
+    اسم القناة: {$name}
+    رابط القناة: {$link}
+    معرف القناة: @{$username}
+
+    .bot-can-not-post = تم حذف البوت من ادارة القناة وتم حذف القناة من اللستة
+
+    اسم القناة: {$name}
+    رابط القناة: {$link}
+    معرف القناة: {$username}
