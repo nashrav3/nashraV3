@@ -30,7 +30,7 @@ type verifyChatData = {
   doneCount: number;
   statusMessageId: number;
   statusMessageChatId: number;
-}; // & ({ chatId: number } | { username: string });
+};
 
 const queueName = "verify-chat";
 
@@ -160,6 +160,7 @@ export function createVerifyChatWorker({
                     });
                     break;
                   default:
+                    // eslint-disable-next-line no-console
                     console.error(e);
                 }
               }

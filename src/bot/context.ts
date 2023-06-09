@@ -34,11 +34,7 @@ export type ContextScopeWith<P extends keyof ContextScope> = Record<
 
 type SessionData = {
   // field?: string;
-  firstName?: string;
-  middleName?: string;
-  lastName?: string;
-  city?: string;
-  birthDate?: number;
+  broadcastNotifyUsers?: boolean;
 };
 
 export type Context = ParseModeFlavor<

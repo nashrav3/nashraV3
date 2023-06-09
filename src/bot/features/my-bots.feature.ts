@@ -1,12 +1,8 @@
 import { Composer } from "grammy";
-import {
-  MenuMiddleware,
-  MenuTemplate,
-  createBackMainMenuButtons,
-} from "grammy-inline-menu";
-import { ChatFromGetChat } from "grammy/types";
-import { escapeHTML } from "~/bot/helpers/escape-html";
+import { MenuMiddleware, MenuTemplate } from "grammy-inline-menu";
 import { Context } from "../context";
+import { addBotMenu } from "../menus/add-bot/add-bot.menu";
+import { myBotsMenu } from "../menus/my-bots/my-bots.menu";
 
 // TODO: seperate these menus into files in /menus
 
@@ -19,109 +15,107 @@ const feature = composer.chatType("private");
 //     ctx.local.bot?.type === "OWNER_OWNED_MAKER"
 // );
 
-const startMenu = new MenuTemplate<Context>(
-  (ctx) => `Hey ${ctx.from?.first_name}!`
-);
-
-const addBotMenu = new MenuTemplate<Context>((ctx) => {
-  return {
-    text: `Hey ${escapeHTML(ctx.from?.first_name || "name")}!`,
-    parse_mode: "HTML",
-  };
-});
-
-const myBotsMenu = new MenuTemplate<Context>(async (ctx) => {
+const startMenu = new MenuTemplate<Context>((ctx) => {
   if (!ctx.from) throw new Error("!!!!!");
-  return {
-    text: ctx.t(`my_bots.bots_count`, {
-      botsCount: await ctx.prisma.botChat.count({
-        where: {
-          chatId: ctx.from.id,
-          role: "OWNER",
-        },
-      }),
-    }),
-    parse_mode: "HTML",
-  };
+  return `Hey ${ctx.from.first_name}!`;
 });
 
-const botMenu = new MenuTemplate<Context>(
-  (ctx) => `You chose city ${ctx.match}`
-);
+// const addBotMenu = new MenuTemplate<Context>((ctx) => {
+//   if (!ctx.from) throw new Error("!!!!!");
+//   return {
+//     text: `Hey ${escapeHTML(ctx.from.first_name)}!`,
+//     parse_mode: "HTML",
+//   };
+// });
 
-const broadcastOptionsMenu = new MenuTemplate<Context>((ctx) =>
-  ctx.t(`broadcast_menu.messageText`)
-);
+// const myBotsMenu = new MenuTemplate<Context>(async (ctx) => {
+//   if (!ctx.from) throw new Error("!!!!!");
+//   return {
+//     text: ctx.t(`my_bots.bots_count`, {
+//       botsCount: await ctx.prisma.botChat.count({
+//         where: {
+//           chatId: ctx.from.id,
+//           role: "OWNER",
+//         },
+//       }),
+//     }),
+//     parse_mode: "HTML",
+//   };
+// });
 
-const groupSettingsMenu = new MenuTemplate<Context>(async (ctx) => {
-  const { group: groupId } = await ctx.prisma.bot.findUniqueOrThrow({
-    where: ctx.prisma.bot.byBotId(ctx.me.id),
-  });
-  // try {
-  if (groupId) {
-    const adminsGroup = (await ctx.api.getChat(Number(groupId))) as Extract<
-      ChatFromGetChat,
-      { type: "supergroup" }
-    >;
-    if (adminsGroup) {
-      const { title, invite_link: inviteLink, username } = adminsGroup;
-      return {
-        text: ctx.t(`set_group.messageTextWithGroupInfo`, {
-          title: escapeHTML(title),
-          username: username || "not-provided",
-          inviteLink: inviteLink || "not-provided",
-        }),
-        parse_mode: "HTML",
-      };
-    }
-  }
-  return ctx.t(`set_group.messageText`);
-  // } catch (e: unknown) {
-  //   if (e.description === "Bad Request: chat not found") {
-  //     await chatsService.disconnectAdminsGroup(
-  //       Number(ctx.local.bot?.groupId),
-  //       Number(ctx.match?.[1])
-  //     );
-  //   }
-  //   return ctx.t(`set_group.messageText`);
-  // }
-});
+// const botMenu = new MenuTemplate<Context>(
+//   (ctx) => `You chose city ${ctx.match}`
+// );
+
+// const broadcastOptionsMenu = new MenuTemplate<Context>((ctx) =>
+//   ctx.t(`broadcast_menu.messageText`)
+// );
+
+// const groupSettingsMenu = new MenuTemplate<Context>(async (ctx) => {
+//   const { group: groupId } = await ctx.prisma.bot.findUniqueOrThrow({
+//     where: ctx.prisma.bot.byBotId(ctx.me.id),
+//   });
+//   // try {
+//   if (groupId) {
+//     const adminsGroup = (await ctx.api.getChat(Number(groupId))) as Extract<
+//       ChatFromGetChat,
+//       { type: "supergroup" }
+//     >;
+//     if (adminsGroup) {
+//       const { title, invite_link: inviteLink, username } = adminsGroup;
+//       return {
+//         text: ctx.t(`set_group.messageTextWithGroupInfo`, {
+//           title: escapeHTML(title),
+//           username: username || "not-provided",
+//           inviteLink: inviteLink || "not-provided",
+//         }),
+//         parse_mode: "HTML",
+//       };
+//     }
+//   }
+//   return ctx.t(`set_group.messageText`);
+//   // } catch (e: unknown) {
+//   //   if (e.description === "Bad Request: chat not found") {
+//   //     await chatsService.disconnectAdminsGroup(
+//   //       Number(ctx.local.bot?.groupId),
+//   //       Number(ctx.match?.[1])
+//   //     );
+//   //   }
+//   //   return ctx.t(`set_group.messageText`);
+//   // }
+// });
 
 const confirmDeleteGroupMenu = new MenuTemplate<Context>((ctx) =>
   ctx.t(`set_group.confirm_delete_messageText`)
-);
-
-const confirmDeleteBotMenu = new MenuTemplate<Context>((ctx) =>
-  ctx.t(`delete_bot.confirm_delete_messageText`)
 );
 
 const groupDeletedSuccessfullyMenu = new MenuTemplate<Context>((ctx) =>
   ctx.t(`set_group.group_deleted_successfully_messageText`)
 );
 
-const botDeletedSuccessfullyMenu = new MenuTemplate<Context>((ctx) =>
-  ctx.t(`delete_bot.bot_deleted_successfully_messageText`)
-);
+// const botDeletedSuccessfullyMenu = new MenuTemplate<Context>((ctx) =>
+//   ctx.t(`delete_bot.bot_deleted_successfully_messageText`)
+// );
 
-const repliesMenu = new MenuTemplate<Context>((ctx) =>
-  ctx.t(`replies.messageText`)
-);
+// const repliesMenu = new MenuTemplate<Context>((ctx) =>
+//   ctx.t(`replies.messageText`)
+// );
 
-const forceSubMenu = new MenuTemplate<Context>((ctx) =>
-  ctx.t(`forceSubMenu.messageText`)
-);
+// const forceSubMenu = new MenuTemplate<Context>((ctx) =>
+//   ctx.t(`forceSubMenu.messageText`)
+// );
 
-const forceSubGroupMenu = new MenuTemplate<Context>((ctx) =>
-  ctx.t(`forceSubGroupMenu.messageText`)
-);
+// const forceSubGroupMenu = new MenuTemplate<Context>((ctx) =>
+//   ctx.t(`forceSubGroupMenu.messageText`)
+// );
 
-const forceSubChannelMenu = new MenuTemplate<Context>((ctx) =>
-  ctx.t(`forceSubChannelMenu.messageText`)
-);
+// const forceSubChannelMenu = new MenuTemplate<Context>((ctx) =>
+//   ctx.t(`forceSubChannelMenu.messageText`)
+// );
 
-const forceSubChannelsMenu = new MenuTemplate<Context>((ctx) =>
-  ctx.t(`forceSubChannelsMenu.messageText`)
-);
+// const forceSubChannelsMenu = new MenuTemplate<Context>((ctx) =>
+//   ctx.t(`forceSubChannelsMenu.messageText`)
+// );
 
 // start menu start
 startMenu.submenu((ctx) => ctx.t(`start_menu.add_bot`), "addbot", addBotMenu);
@@ -133,90 +127,93 @@ startMenu.submenu((ctx) => ctx.t(`start_menu.my_bots`), "bots", myBotsMenu, {
 // start menu end
 
 // my botsMenu start
-myBotsMenu.chooseIntoSubmenu(
-  "B",
-  async (ctx) => {
-    if (!ctx.from) throw new Error("!!!!!");
-    const { bots } = await ctx.prisma.chat.findUniqueOrThrow({
-      where: ctx.prisma.chat.byChatId(ctx.from.id),
-      include: {
-        bots: {
-          where: {
-            role: "OWNER",
-          },
-          include: {
-            bot: true,
-          },
-        },
-      },
-    });
-    return (
-      bots.reduce((acc, bot) => {
-        return { ...acc, [String(bot.botId)]: `@${bot.bot.username}` };
-      }, {}) || []
-    );
-  },
-  botMenu,
-  {
-    columns: 2,
-  }
-);
+// myBotsMenu.chooseIntoSubmenu(
+//   "B",
+//   async (ctx) => {
+//     if (!ctx.from) throw new Error("!!!!!");
+//     const { bots } = await ctx.prisma.chat.findUniqueOrThrow({
+//       where: ctx.prisma.chat.byChatId(ctx.from.id),
+//       include: {
+//         bots: {
+//           where: {
+//             role: "OWNER",
+//           },
+//           include: {
+//             bot: true,
+//           },
+//         },
+//       },
+//     });
+//     return (
+//       bots.reduce((acc, bot) => {
+//         return { ...acc, [String(bot.botId)]: `@${bot.bot.username}` };
+//       }, {}) || []
+//     );
+//   },
+//   botMenu,
+//   {
+//     columns: 2,
+//   }
+// );
 
-myBotsMenu.submenu((ctx) => ctx.t(`start_menu.add_bot`), "addbot", addBotMenu, {
-  hide: async (ctx) =>
-    (await ctx.prisma.botChat.count({
-      where: {
-        chatId: 0,
-        role: "OWNER",
-      },
-    })) !== 0,
-});
+// myBotsMenu.submenu((ctx) => ctx.t(`start_menu.add_bot`), "addbot", addBotMenu, {
+//   hide: async (ctx) => {
+//     if (!ctx.from) throw new Error("!!!!!");
+//     const count = await ctx.prisma.botChat.count({
+//       where: {
+//         chatId: ctx.from.id,
+//         role: "OWNER",
+//       },
+//     });
+//     return count !== 0;
+//   },
+// });
 // mybotsmenu end
 
 // bot menu start
-botMenu.interact((ctx) => ctx.t("bot_menu.stats"), "stats", {
-  do: async (ctx) => {
-    await ctx.answerCallbackQuery("not implemented yet");
-    return false;
-  },
-});
+// botMenu.interact((ctx) => ctx.t("bot_menu.stats"), "stats", {
+//   do: async (ctx) => {
+//     await ctx.answerCallbackQuery("not implemented yet");
+//     return false;
+//   },
+// });
 
-botMenu.submenu(
-  (ctx) => ctx.t("bot_menu.broadcast"),
-  "broadcast",
-  broadcastOptionsMenu,
-  {
-    joinLastRow: true,
-  }
-);
+// botMenu.submenu(
+//   (ctx) => ctx.t("bot_menu.broadcast"),
+//   "broadcast",
+//   broadcastOptionsMenu,
+//   {
+//     joinLastRow: true,
+//   }
+// );
 
-botMenu.submenu(
-  (ctx) => ctx.t("bot_menu.group_settings"),
-  "group",
-  groupSettingsMenu
-);
+// botMenu.submenu(
+//   (ctx) => ctx.t("bot_menu.group_settings"),
+//   "group",
+//   groupSettingsMenu
+// );
 
-botMenu.submenu((ctx) => ctx.t(`bot_menu.replies`), "replies", repliesMenu, {
-  joinLastRow: true,
-});
+// // botMenu.submenu((ctx) => ctx.t(`bot_menu.replies`), "replies", repliesMenu, {
+// //   joinLastRow: true,
+// // });
 
-botMenu.submenu(
-  (ctx) => ctx.t(`bot_menu.force_subscribe`),
-  "f_sub",
-  forceSubMenu
-);
-botMenu.submenu(
-  (ctx) => ctx.t("bot_menu.delete_bot"),
-  "delete",
-  confirmDeleteBotMenu
-);
+// // botMenu.submenu(
+// //   (ctx) => ctx.t(`bot_menu.force_subscribe`),
+// //   "f_sub",
+// //   forceSubMenu
+// // );
+// botMenu.submenu(
+//   (ctx) => ctx.t("bot_menu.delete_bot"),
+//   "delete",
+//   confirmDeleteBotMenu
+// );
 
-botMenu.manualRow(
-  createBackMainMenuButtons(
-    (ctx) => ctx.t(`bot_menu.back`),
-    (ctx) => ctx.t(`bot_menu.mainMenu`)
-  )
-);
+// botMenu.manualRow(
+//   createBackMainMenuButtons(
+//     (ctx) => ctx.t(`bot_menu.back`),
+//     (ctx) => ctx.t(`bot_menu.mainMenu`)
+//   )
+// );
 // bot menu end
 
 // // repliesMenu start
@@ -239,98 +236,60 @@ botMenu.manualRow(
 // // replies menu end
 
 // broadcast options menu start
-// broadcastOptionsMenu.interact(
-//   (ctx) => ctx.t("broadcast_menu.send_to_all"),
-//   "s2a",
-//   {
-//     do: async (ctx) => {
-//       await ctx.answerCallbackQuery("not implemented yet");
-//       return false;
-//     },
-//   }
-// );
 
-// broadcastOptionsMenu.interact(
-//   (ctx) => ctx.t("broadcast_menu.forward_to_all"),
-//   "f2a",
-//   {
-//     do: async (ctx) => {
-//       await ctx.answerCallbackQuery("not implemented yet");
-//       return false;
-//     },
-//   }
-// );
-
-// broadcastOptionsMenu.toggle(
-//   (ctx) => ctx.t(`broadcast_menu.notify_users`),
-//   "notifyUsers",
-//   {
-//     isSet: (ctx) => ctx.session.broadcastNotifyUsers,
-//     set: (ctx, newState) => {
-//       ctx.session.broadcastNotifyUsers = newState;
-//       return true;
-//     },
-//   }
-// );
-// broadcastOptionsMenu.manualRow(
-//   createBackMainMenuButtons(
-//     (ctx) => ctx.t(`bot_menu.back`),
-//     (ctx) => ctx.t(`bot_menu.mainMenu`)
-//   )
-// );
 // // broadcast options menu end
 
 // group Settings menu  start
 
-groupSettingsMenu.url(
-  (ctx) => ctx.t(`set_group.how_to_set`),
-  (ctx) => ctx.t(`set_group.how_to_set_url`)
-);
+// groupSettingsMenu.url(
+//   (ctx) => ctx.t(`set_group.how_to_set`),
+//   (ctx) => ctx.t(`set_group.how_to_set_url`)
+// );
 
-groupSettingsMenu.url(
-  (ctx) => ctx.t(`set_group.how_to_change`),
-  (ctx) => ctx.t(`set_group.how_to_change_url`),
-  {
-    joinLastRow: true,
-  }
-);
-
-// groupSettingsMenu.submenu(
-//   (ctx) => ctx.t(`set_group.delete`),
-//   "delete",
-//   confirmDeleteGroupMenu,
+// groupSettingsMenu.url(
+//   (ctx) => ctx.t(`set_group.how_to_change`),
+//   (ctx) => ctx.t(`set_group.how_to_change_url`),
 //   {
-//     hide: async (ctx) => !(await extractGroupId(ctx)),
+//     joinLastRow: true,
 //   }
 // );
 
-// groupSettingsMenu.manualRow(
+// // groupSettingsMenu.submenu(
+// //   (ctx) => ctx.t(`set_group.delete`),
+// //   "delete",
+// //   confirmDeleteGroupMenu,
+// //   {
+// //     hide: async (ctx) => !(await extractGroupId(ctx)),
+// //   }
+// // );
+
+// // groupSettingsMenu.manualRow(
+// //   createBackMainMenuButtons(
+// //     (ctx) => ctx.t(`bot_menu.back`),
+// //     (ctx) => ctx.t(`bot_menu.mainMenu`)
+// //   )
+// // );
+// group Settings menu end
+// force sub menu start
+
+// forceSubMenu.submenu(
+//   (ctx) => ctx.t("force_sub_channel.add_channel"),
+//   "addC",
+//   forceSubChannelsMenu
+// );
+
+// forceSubMenu.submenu(
+//   (ctx) => ctx.t("force_sub_group.add_group"),
+//   "addG",
+//   forceSubGroupMenu
+// );
+
+// forceSubMenu.manualRow(
 //   createBackMainMenuButtons(
 //     (ctx) => ctx.t(`bot_menu.back`),
 //     (ctx) => ctx.t(`bot_menu.mainMenu`)
 //   )
 // );
-// group Settings menu end
-// force sub menu start
-
-forceSubMenu.submenu(
-  (ctx) => ctx.t("force_sub_channel.add_channel"),
-  "addC",
-  forceSubChannelsMenu
-);
-
-forceSubMenu.submenu(
-  (ctx) => ctx.t("force_sub_group.add_group"),
-  "addG",
-  forceSubGroupMenu
-);
-
-forceSubMenu.manualRow(
-  createBackMainMenuButtons(
-    (ctx) => ctx.t(`bot_menu.back`),
-    (ctx) => ctx.t(`bot_menu.mainMenu`)
-  )
-);
 
 // force sub menu end
 
@@ -513,24 +472,24 @@ confirmDeleteGroupMenu.interact(
 // );
 // botDeletedSuccessfullyMenu end
 
-confirmDeleteBotMenu.submenu(
-  (ctx) => {
-    return ctx.t(`delete_bot.confirm_delete_bot_yes`);
-  },
-  "yes",
-  botDeletedSuccessfullyMenu
-);
+// confirmDeleteBotMenu.submenu(
+//   (ctx) => {
+//     return ctx.t(`delete_bot.confirm_delete_bot_yes`);
+//   },
+//   "yes",
+//   botDeletedSuccessfullyMenu
+// );
 
-confirmDeleteBotMenu.interact(
-  (ctx) => ctx.t(`delete_bot.confirm_delete_bot_no`),
-  "no",
-  {
-    do: async (ctx) => {
-      await ctx.answerCallbackQuery("not implemented yet");
-      return "..";
-    },
-  }
-);
+// confirmDeleteBotMenu.interact(
+//   (ctx) => ctx.t(`delete_bot.confirm_delete_bot_no`),
+//   "no",
+//   {
+//     do: async (ctx) => {
+//       await ctx.answerCallbackQuery("not implemented yet");
+//       return "..";
+//     },
+//   }
+// );
 
 const menuMiddleware = new MenuMiddleware("/", startMenu);
 feature.command("start", (ctx) => menuMiddleware.replyToContext(ctx));
