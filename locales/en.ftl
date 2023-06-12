@@ -167,3 +167,12 @@ chat-member =
     اسم القناة: {$name}
     رابط القناة: {$link}
     معرف القناة: @{$username}
+
+
+remove-channel = 
+    .stats = تم حذف القناة من اللستة بنجاح: 
+    {$success}
+     
+    لا توجد في اللستة:
+    {$notFoundUsernames}
+    {$notFoundIdsChats}

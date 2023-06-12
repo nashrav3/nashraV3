@@ -7,6 +7,7 @@ export * from "./language.feature";
 export * from "./list-chats.feature";
 export * from "./my-bots.feature";
 export * from "./preview-post.feature";
+export * from "./remove-channel";
 export * from "./set-group.feature";
 export * from "./unhandled.feature";
 export * from "./verify-chat.feature";

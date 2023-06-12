@@ -38,7 +38,6 @@ export const setScope = (): Middleware<Context> => async (ctx, next) => {
         chatId,
         name,
         username,
-        languageCode,
         bots: {
           upsert: {
             where: {

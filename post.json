@@ -409,3 +409,33 @@
     }
   }
 }
+
+
+
+[17:27:10.176] ERROR (20954): job failed
+    job_id: "16173"
+    job_name: "verifyChat:bbvvbbot:-1001843395385"
+    queue: "verify-chat"
+    err: {
+      "type": "PrismaClientKnownRequestError",
+      "message": "\nInvalid `prisma.chat.upsert()` invocation:\n\n\nThe required connected records were not found. Expected 1 records to be connected after connect operation on one-to-many relation 'BotChatToChat', found 0.",
+      "stack":
+          Error: 
+          Invalid `prisma.chat.upsert()` invocation:
+          
+          
+          The required connected records were not found. Expected 1 records to be connected after connect operation on one-to-many relation 'BotChatToChat', found 0.
+              at Object.handleRequestError (/home/abdo/nashrav3/node_modules/@prisma/client/runtime/library.js:174:6477)
+              at Object.handleAndLogRequestError (/home/abdo/nashrav3/node_modules/@prisma/client/runtime/library.js:174:5907)
+              at Object.request (/home/abdo/nashrav3/node_modules/@prisma/client/runtime/library.js:174:5786)
+              at t._request (/home/abdo/nashrav3/node_modules/@prisma/client/runtime/library.js:177:10477)
+              at <anonymous> (/home/abdo/nashrav3/src/queues/verify-chat.queue.ts:94:11)
+              at Worker.Worker.connection.connection (/home/abdo/nashrav3/src/queues/verify-chat.queue.ts:70:7)
+              at Worker.processJob (/home/abdo/nashrav3/node_modules/bullmq/dist/cjs/classes/worker.js:352:28)
+              at Worker.retryIfFailed (/home/abdo/nashrav3/node_modules/bullmq/dist/cjs/classes/worker.js:535:24)
+      "code": "P2018",
+      "clientVersion": "4.12.0",
+      "meta": {
+        "details": "Expected 1 records to be connected after connect operation on one-to-many relation 'BotChatToChat', found 0."
+      }
+    }

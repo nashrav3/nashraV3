@@ -15,6 +15,7 @@ import {
   listChatsFeature,
   myBotsFeature,
   previewPostFeature,
+  removeChannelFeature,
   setGroupFeature,
   unhandledFeature,
   verifyChatFeature,
@@ -72,6 +73,7 @@ export const createBot = (
   bot.use(previewPostFeature);
   bot.use(createPostFeature);
   bot.use(addChannelFeature);
+  bot.use(removeChannelFeature);
   bot.use(listChatsFeature);
   bot.use(myBotsFeature);
   bot.use(broadcastFeature);

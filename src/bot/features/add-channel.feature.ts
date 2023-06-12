@@ -42,7 +42,7 @@ feature.command(["a", "add"], logHandle("handle /add"), async (ctx) => {
         username: !chat.startsWith("-") ? `@${chat}` : undefined,
       },
       {
-        delay: 200 * chats.indexOf(chat),
+        delay: 150 * chats.indexOf(chat),
       }
     );
   });

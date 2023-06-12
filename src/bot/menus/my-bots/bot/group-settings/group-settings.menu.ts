@@ -11,10 +11,9 @@ export const groupSettingsMenu = new MenuTemplate<Context>(async (ctx) => {
   });
   // try {
   if (groupId) {
-    const adminsGroup = (await getBotChat(token, Number(groupId))) as Extract<
-      ChatFromGetChat,
-      { type: "supergroup" }
-    >;
+    const adminsGroup = (await getBotChat(token, Number(groupId)).catch(
+      () => false
+    )) as Extract<ChatFromGetChat, { type: "supergroup" }>;
     if (adminsGroup) {
       const { title, invite_link: inviteLink, username } = adminsGroup;
       return {

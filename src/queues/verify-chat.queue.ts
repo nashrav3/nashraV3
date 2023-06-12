@@ -91,17 +91,38 @@ export function createVerifyChatWorker({
             ...job.data,
             chatId: chat.id,
           });
-          await prisma.chat.update({
+          await prisma.chat.upsert({
             where: {
               chatId: chat.id,
             },
-            data: {
+            create: {
+              chatId: chat.id,
+              chatType: chat.type,
+              username: chat.username,
+              name: chat.title,
+              link: chat.invite_link,
+            },
+            update: {
               chatType: chat.type,
               username: chat.username,
               name: chat.title,
               link: chat.invite_link,
             },
           });
+          await prisma.botChat.upsert({
+            where: {
+              botId_chatId: {
+                botId,
+                chatId: chat.id,
+              },
+            },
+            create: {
+              botId,
+              chatId: chat.id,
+            },
+            update: {},
+          });
+
           if (chat.type === "channel") {
             try {
               const administrators = await jobBot.api.getChatAdministrators(
@@ -111,8 +132,8 @@ export function createVerifyChatWorker({
                 (admin) =>
                   admin.user.id === botId &&
                   admin.status === "administrator" &&
-                  admin.can_post_messages &&
-                  admin.can_invite_users
+                  admin.can_post_messages
+                // && admin.can_invite_users
               );
 
               if (!isAdmin) {
@@ -165,6 +186,20 @@ export function createVerifyChatWorker({
                 }
               }
             }
+          } else if (chat.type === "supergroup") {
+            await prisma.list.upsert({
+              where: {
+                chatId_botId: {
+                  chatId: chat.id,
+                  botId,
+                },
+              },
+              create: {
+                chatId: chat.id,
+                botId,
+              },
+              update: {},
+            });
           }
           await job.updateProgress({
             ok: true,
