@@ -59,6 +59,8 @@ export const createServer = async (
       new BullMQAdapter(container.queues.verifyChat),
       new BullMQAdapter(container.queues.broadcast),
       new BullMQAdapter(container.queues.broadcastFlows),
+      new BullMQAdapter(container.queues.listFlow),
+      new BullMQAdapter(container.queues.delete),
     ],
     serverAdapter,
   });

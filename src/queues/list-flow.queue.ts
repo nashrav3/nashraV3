@@ -7,6 +7,8 @@ import type Redis from "ioredis";
 import { progressBar } from "~/bot/helpers/progress-bar";
 import { getRandomEmojiString } from "~/bot/helpers/random-emojis";
 import { tokenToBotId } from "~/bot/helpers/token-to-id";
+import { broadcastCancelKeyboard } from "~/bot/keyboards";
+import { broadcastStatusKeyboard } from "~/bot/keyboards/broadcast-status.keyboard";
 import { config } from "~/config";
 import type { Container } from "~/container";
 import type { PrismaClientX } from "~/prisma";
@@ -19,10 +21,18 @@ enum Step {
   Finish,
 }
 
-export type BroadcastFlowsData = {
+type progressData = {
+  ok: boolean;
+  finished?: boolean;
+  doneCount?: number;
+  totalCount?: number;
+};
+
+export type ListFlowData = {
   botInfo: UserFromGetMe;
   chatId: number;
   statusMessageId: number;
+  languageCode?: string;
   step: Step;
   token: string;
   totalCount: number;
@@ -39,19 +49,15 @@ export type BroadcastFlowsData = {
   }>;
 };
 
-const queueName = "broadcast-flows";
+const queueName = "list-flow";
 
-export function createBroadcastFlowsQueue({
-  connection,
-}: {
-  connection: Redis;
-}) {
-  return new Queue<BroadcastFlowsData>(queueName, {
+export function createListFlowQueue({ connection }: { connection: Redis }) {
+  return new Queue<ListFlowData>(queueName, {
     connection,
   });
 }
 
-export function createBroadcastFlowsWorker({
+export function createListFlowWorker({
   connection,
   prisma,
   handleError,
@@ -59,10 +65,10 @@ export function createBroadcastFlowsWorker({
 }: {
   connection: Redis;
   prisma: PrismaClientX;
-  handleError: (job: Job<BroadcastFlowsData> | undefined, error: Error) => void;
+  handleError: (job: Job<ListFlowData> | undefined, error: Error) => void;
   container: Container;
 }) {
-  return new Worker<BroadcastFlowsData>(
+  return new Worker<ListFlowData>(
     queueName,
     async (job, saidToken) => {
       if (!saidToken) return new Error("saidToken is required!");
@@ -75,8 +81,8 @@ export function createBroadcastFlowsWorker({
       while (step !== Step.Finish) {
         switch (step) {
           case Step.Initial: {
-            const chats = await prisma.botChat.findMany({
-              where: { botId, ...prisma.botChat.canSend() },
+            const chats = await prisma.list.findMany({
+              where: { botId },
               orderBy: {
                 id: "asc",
               },
@@ -122,7 +128,7 @@ export function createBroadcastFlowsWorker({
             break;
           }
           case Step.Second: {
-            const chats = await prisma.botChat.findMany({
+            const chats = await prisma.list.findMany({
               take: config.BATCH_SIZE,
               skip: 1,
               cursor: {
@@ -173,6 +179,15 @@ export function createBroadcastFlowsWorker({
                 ...job.data,
                 step: Step.Finish,
               });
+              await prisma.flow.updateMany({
+                // TODO: don't use update many
+                where: {
+                  jobId: job.id,
+                },
+                data: {
+                  finished: true,
+                },
+              });
               step = Step.Finish;
               return Step.Finish;
             }
@@ -203,10 +218,25 @@ export function createBroadcastFlowsWorker({
     .on("failed", handleError)
     .on(
       "progress",
-      async (job: Job<BroadcastFlowsData>, progress: object | number) => {
-        const { chatId, doneCount, totalCount, token, statusMessageId } =
-          job.data;
+      async (job: Job<ListFlowData>, progress: object | number) => {
+        const jobId = job.id;
+        if (!jobId) throw new Error("job has no Id!");
+        if (typeof progress !== "object")
+          throw new Error("progress is not object!");
+        const pgs = progress as progressData;
+        const {
+          chatId,
+          doneCount,
+          totalCount,
+          token,
+          statusMessageId,
+          languageCode,
+        } = job.data;
         const botId = tokenToBotId(token);
+
+        const keyboard = pgs.finished
+          ? await broadcastStatusKeyboard(jobId, languageCode)
+          : await broadcastCancelKeyboard(jobId, languageCode);
 
         const jobBot = new Bot(token, {
           botInfo: { id: botId } as UserFromGetMe,
@@ -226,6 +256,7 @@ export function createBroadcastFlowsWorker({
         jobBot.api
           .editMessageText(chatId, statusMessageId, statusMessageText, {
             parse_mode: "HTML",
+            reply_markup: keyboard,
           })
           .catch(async (e) => {
             // eslint-disable-next-line no-console
@@ -235,6 +266,7 @@ export function createBroadcastFlowsWorker({
                 statusMessageText,
                 {
                   parse_mode: "HTML",
+                  reply_markup: keyboard,
                 }
               );
               job.update({

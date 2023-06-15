@@ -5,6 +5,8 @@ import { createPrisma } from "~/prisma";
 import {
   createBroadcastFlowsQueue,
   createBroadcastQueue,
+  createDeleteQueue,
+  createListFlowQueue,
   createVerifyChatQueue,
 } from "~/queues";
 
@@ -28,6 +30,8 @@ export const createAppContainer = () => {
         connection: redis,
       }),
       broadcastFlows: createBroadcastFlowsQueue({ connection: redis }),
+      listFlow: createListFlowQueue({ connection: redis }),
+      delete: createDeleteQueue({ connection: redis }),
     },
   };
 };

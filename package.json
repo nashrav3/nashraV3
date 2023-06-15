@@ -30,6 +30,7 @@
     "bullmq": "3.14.1",
     "callback-data": "1.0.2",
     "dotenv": "16.0.3",
+    "enhanced-ms": "^2.3.0",
     "fastify": "4.15.0",
     "grammy": "1.15.3",
     "grammy-guard": "0.5.0",

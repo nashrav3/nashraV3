@@ -8,10 +8,10 @@ language =
     .select = Please, select your language
     .changed = Language successfully changed!
 
-token_received = 
-    .new_bot = New bot added, your bot <b>{$firstName}</b> which is @{$username}!
-    .updated_bot = Bot updated your bot <b>{$firstName}</b> which is @{$username}!
-    .invalid = Invalid token
+add-bot = 
+    .new-bot-added = New bot added, your bot <b>{$firstName}</b> which is @{$username}!
+    .bot-updated = Bot updated your bot <b>{$firstName}</b> which is @{$username}!
+    .invalid-token = Invalid token
 
 start_menu = 
     .my_bots = my bots
@@ -176,3 +176,8 @@ remove-channel =
     لا توجد في اللستة:
     {$notFoundUsernames}
     {$notFoundIdsChats}
+
+
+broadcast-status-keyboard =
+    .delete = delete
+    .resend = resend

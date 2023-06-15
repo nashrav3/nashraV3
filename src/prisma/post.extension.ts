@@ -17,6 +17,8 @@ export default Prisma.defineExtension({
       },
       postSelectValues() {
         return {
+          postId: true,
+          postNumber: true,
           text: true,
           fileId: true,
           type: true,

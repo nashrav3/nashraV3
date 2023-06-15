@@ -6,6 +6,8 @@ import { createAppContainer } from "~/container";
 import {
   createBroadcastFlowsWorker,
   createBroadcastWorker,
+  createDeleteWorker,
+  createListFlowWorker,
   createVerifyChatWorker,
 } from "~/queues";
 import { createServer } from "~/server";
@@ -81,6 +83,24 @@ try {
 
   workers.push(
     createBroadcastFlowsWorker({
+      connection: redis,
+      handleError: handleWorkerError,
+      prisma,
+      container,
+    })
+  );
+
+  workers.push(
+    createListFlowWorker({
+      connection: redis,
+      handleError: handleWorkerError,
+      prisma,
+      container,
+    })
+  );
+
+  workers.push(
+    createDeleteWorker({
       connection: redis,
       handleError: handleWorkerError,
       prisma,

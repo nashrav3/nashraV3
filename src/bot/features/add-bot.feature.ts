@@ -17,8 +17,8 @@ feature.hears(
     const bot = new Bot(token);
     await bot
       .init()
-      .catch(() => {
-        return ctx.reply(ctx.t("add-bot.invalid-token"));
+      .catch(async () => {
+        await ctx.reply(ctx.t("add-bot.invalid-token"));
       })
       .then(async () => {
         await bot.api.deleteWebhook();
@@ -32,8 +32,20 @@ feature.hears(
       create: ctx.prisma.bot.createNewBotInput(bot.botInfo, ctx.from.id, token),
       update: ctx.prisma.bot.updateBotInput(bot.botInfo, ctx.from.id, token),
     });
-    if (dbBot.isNew) return ctx.reply(ctx.t("add-bot.new-bot-added"));
-    return ctx.reply(ctx.t("add-bot.bot-updated"));
+    if (dbBot.isNew)
+      await ctx.reply(
+        ctx.t("add-bot.new-bot-added", {
+          firstName: bot.botInfo.first_name,
+          username: bot.botInfo.username,
+        })
+      );
+    else
+      await ctx.reply(
+        ctx.t("add-bot.bot-updated", {
+          firstName: bot.botInfo.first_name,
+          username: bot.botInfo.username,
+        })
+      );
   }
 );
 

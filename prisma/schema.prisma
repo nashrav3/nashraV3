@@ -40,6 +40,7 @@ model Bot {
   timezone          String?
   createdAt         DateTime  @default(now()) @map("created_at")
   updatedAt         DateTime  @updatedAt @map("updated_at")
+  flows             Flow[]
 
   @@map("bots")
 }
@@ -58,6 +59,7 @@ model Post {
   postOptions  Json?
   createdAt    DateTime @default(now()) @map("created_at")
   sents        Sent[]
+  flows        Flow[]
 
   @@map("posts")
 }
@@ -86,7 +88,7 @@ model Sent {
   id            Int       @id @unique @default(autoincrement())
   messageId     Int       @map("message_id")
   postId        Int       @map("post_id")
-  chatId        BigInt    @map("chatId")
+  chatId        BigInt    @map("chat_id")
   botId         BigInt    @map("bot_id")
   toBeDeletedAt DateTime? @map("to_be_deleted_at")
   deleted       Boolean   @default(false)
@@ -96,13 +98,14 @@ model Sent {
   updatedAt     DateTime  @updatedAt @map("updated_at")
   createdAt     DateTime  @default(now()) @map("created_at")
 
+  @@unique([messageId, chatId])
   @@map("sents")
 }
 
 model List {
   id        Int      @id @unique @default(autoincrement())
   index     Int      @unique @default(autoincrement())
-  chatId    BigInt   @map("chatId")
+  chatId    BigInt   @map("chat_id")
   botId     BigInt   @map("bot_id")
   bot       Bot      @relation(fields: [botId], references: [botId])
   chat      Chat     @relation(fields: [chatId], references: [chatId])
@@ -110,6 +113,25 @@ model List {
 
   @@unique([chatId, botId])
   @@map("lists")
+}
+
+model Flow {
+  id                  Int      @id @unique @default(autoincrement())
+  name                String
+  queueName           String   @map("queue_name")
+  jobId               String   @map("job_id")
+  botId               BigInt   @map("bot_id")
+  postId              Int?     @map("post_id")
+  statusMessageId     Int      @map("status_message_id")
+  statusMessageChatId BigInt   @map("status_message_chat_id")
+  childrenCount       Int      @map("children_count")
+  finished            Boolean?
+  bot                 Bot      @relation(fields: [botId], references: [botId])
+  post                Post?    @relation(fields: [postId], references: [postId])
+  updatedAt           DateTime @updatedAt @map("updated_at")
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  @@map("flows")
 }
 
 enum Role {

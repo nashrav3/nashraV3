@@ -28,10 +28,10 @@ welcome = 👋🏻  اهلا!
 language = 
     .select = 🌐 الرجاء اختيار اللغة
     .changed = ✅ تم تغيير اللغة الى العربية بنجاح!
-token_received = 
-    .new_bot = تم إضافة بوت جديد، بوت <b>{ $firstName }</b> وهو @{ $username }!
-    .updated_bot = تم تحديث البوت <b>{ $firstName }</b> وهو @{ $username }!
-    .invalid = توكن غير صالح!
+add-bot = 
+    .new-bot-added = تم إضافة بوت جديد، بوت <b>{ $firstName }</b> وهو @{ $username }!
+    .bot-updated = تم تحديث البوت <b>{ $firstName }</b> وهو @{ $username }!
+    .invalid-token = توكن غير صالح!
 my_bots = 
     .bots_count =
         { NUMBER($botsCount) ->
@@ -126,3 +126,7 @@ delete_bot =
     .confirm_delete_bot_no = لا!
     .confirm_delete_bot_yes = نعم
     .bot_deleted_successfully_messageText = ✅ تم حذف البوت بنجاح.
+
+broadcast-status-keyboard =
+    .delete = حذف
+    .resend = حذف وارسال

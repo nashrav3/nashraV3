@@ -24,12 +24,10 @@ const sendBroadcast = async (
   const opts = JSON.parse(postOptions as string);
 
   // eslint-disable-next-line no-constant-condition
-  if (1) return jobBot.api.getChat(chatId);
+  // if (1) return jobBot.api.getChat(chatId);
 
   if (text) return jobBot.api.sendMessage(chatId, text, opts);
-  if (!fileId)
-    // TODO: fix very bad
-    return jobBot.api.sendMessage(chatId, "broadcast.no_file_id", opts);
+  if (!fileId) throw new Error("no file Id !!");
   if (type === "photo") return jobBot.api.sendPhoto(chatId, fileId, opts);
   if (type === "video") return jobBot.api.sendVideo(chatId, fileId, opts);
   if (type === "audio") return jobBot.api.sendAudio(chatId, fileId, opts);
@@ -47,6 +45,7 @@ export type BroadcastData = {
   serialId: number;
   post: Prisma.PostGetPayload<{
     select: {
+      postId: true;
       text: true;
       type: true;
       fileId: true;
@@ -105,11 +104,20 @@ export function createBroadcastWorker({
             });
           }
         })
-        .then(async () => {
+        .then(async (msg) => {
           job.updateProgress({
             ok: true,
             chatId,
             serialId,
+          });
+          if (!msg) return;
+          await prisma.sent.create({
+            data: {
+              messageId: msg.message_id,
+              chatId,
+              botId,
+              postId: post.postId,
+            },
           });
         });
     },
