@@ -32,6 +32,7 @@ import {
   updateLogger,
 } from "~/bot/middlewares";
 import type { Container } from "~/container";
+import { deleteFeature } from "./features/delete-post.feature";
 
 type Dependencies = {
   container: Container;
@@ -78,6 +79,7 @@ export const createBot = (
   bot.use(listChatsFeature);
   bot.use(myBotsFeature);
   bot.use(broadcastFeature);
+  bot.use(deleteFeature);
   bot.use(sendToListFeature);
   if (isMultipleLocales) {
     bot.use(languageFeature);

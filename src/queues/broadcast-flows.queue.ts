@@ -2,11 +2,8 @@
 import { UserFromGetMe } from "@grammyjs/types";
 import { Prisma } from "@prisma/client";
 import { Job, Queue, WaitingChildrenError, Worker } from "bullmq";
-import { Bot } from "grammy";
 import type Redis from "ioredis";
-import { progressBar } from "~/bot/helpers/progress-bar";
-import { getRandomEmojiString } from "~/bot/helpers/random-emojis";
-import { tokenToBotId } from "~/bot/helpers/token-to-id";
+import { broadcastFlowProgressHandler } from "~/bot/handlers/progress.handler";
 import { config } from "~/config";
 import type { Container } from "~/container";
 import type { PrismaClientX } from "~/prisma";
@@ -201,49 +198,5 @@ export function createBroadcastFlowsWorker({
     }
   )
     .on("failed", handleError)
-    .on(
-      "progress",
-      async (job: Job<BroadcastFlowsData>, progress: object | number) => {
-        const { chatId, doneCount, totalCount, token, statusMessageId } =
-          job.data;
-        const botId = tokenToBotId(token);
-
-        const jobBot = new Bot(token, {
-          botInfo: { id: botId } as UserFromGetMe,
-        });
-        // const pb = progressBar(doneCount, totalCount, 20);
-        let pb = "";
-        pb =
-          // Array(pb.length).fill("\b").join("") +
-          progressBar({
-            value: doneCount,
-            length: 20,
-            vmin: 0,
-            vmax: totalCount,
-            progressive: false,
-          });
-        const statusMessageText = `Broadcasting to ${totalCount}\n\n${pb}\n\n${getRandomEmojiString()} `;
-        jobBot.api
-          .editMessageText(chatId, statusMessageId, statusMessageText, {
-            parse_mode: "HTML",
-          })
-          .catch(async (e) => {
-            // eslint-disable-next-line no-console
-            if (e.error_code === 400) {
-              const statusMessage = await jobBot.api.sendMessage(
-                chatId,
-                statusMessageText,
-                {
-                  parse_mode: "HTML",
-                }
-              );
-              job.update({
-                ...job.data,
-                statusMessageId: statusMessage.message_id,
-              });
-            } else console.error(e);
-          });
-        container.logger.info(`${pb} progress ${JSON.stringify(progress)}`);
-      }
-    );
+    .on("progress", broadcastFlowProgressHandler);
 }

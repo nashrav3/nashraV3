@@ -17,8 +17,12 @@ const sendBroadcast = async (
 
 export type DeleteData = {
   chatId: number;
-  token: string;
   messageId: number;
+  token: string;
+  statusMessageId: number;
+  languageCode?: string;
+  totalCount: number;
+  doneCount: number;
 };
 
 const queueName = "delete";
@@ -51,7 +55,7 @@ export function createDeleteWorker({
       });
       await sendBroadcast(jobBot, chatId, messageId).then(
         async (msg) => {
-          job.updateProgress({
+          await job.updateProgress({
             ok: true,
             chatId,
           });
@@ -81,7 +85,7 @@ export function createDeleteWorker({
               ...commonData,
               data: specificData,
             });
-            job.updateProgress({
+            await job.updateProgress({
               ok: false,
               chatId,
               errorDescription,
@@ -94,16 +98,17 @@ export function createDeleteWorker({
       connection,
       concurrency: 10,
     }
-  ).on("failed", handleError);
-  // .on(
-  //   "progress",
-  //   (job: Job<BroadcastData, unknown, string>, progress: object | number) => {
-  //     if (!job) return;
-  //     const { chatId, serialId } = job.data;
-  //     container.logger.info(
-  //       `Broadcast job progress ${JSON.stringify(progress)}`,
-  //       { chatId }
-  //     );
-  //   }
-  // );
+  )
+    .on("failed", handleError)
+    .on(
+      "progress",
+      (job: Job<DeleteData, unknown, string>, progress: object | number) => {
+        if (!job) return;
+        const { chatId, doneCount, totalCount, statusMessageId } = job.data;
+        container.logger.info(
+          `Broadcast job progress ${JSON.stringify(progress)}`,
+          { chatId }
+        );
+      }
+    );
 }
