@@ -36,11 +36,12 @@ model Bot {
   posts             Post[]
   chats             BotChat[]
   sents             Sent[]
+  flows             Flow[]
   list              List[]
   timezone          String?
+  expireAt          DateTime  @default(now()) @map("expire_at")
   createdAt         DateTime  @default(now()) @map("created_at")
   updatedAt         DateTime  @updatedAt @map("updated_at")
-  flows             Flow[]
 
   @@map("bots")
 }

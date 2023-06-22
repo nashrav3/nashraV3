@@ -18,6 +18,7 @@ import {
   removeChannelFeature,
   sendToListFeature,
   setGroupFeature,
+  statsFeature,
   unhandledFeature,
   verifyChatFeature,
 } from "~/bot/features";
@@ -81,6 +82,7 @@ export const createBot = (
   bot.use(broadcastFeature);
   bot.use(deleteFeature);
   bot.use(sendToListFeature);
+  bot.use(statsFeature);
   if (isMultipleLocales) {
     bot.use(languageFeature);
   }

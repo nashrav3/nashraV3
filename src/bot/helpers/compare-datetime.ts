@@ -4,3 +4,7 @@
 export function isNewBot(createdAt: Date, updatedAt: Date): boolean {
   return updatedAt.getTime() - createdAt.getTime() < 100;
 }
+
+export function isPremiumBot(expireAt: Date): boolean {
+  return expireAt.getTime() > Date.now();
+}

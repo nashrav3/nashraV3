@@ -130,3 +130,16 @@ delete_bot =
 broadcast-status-keyboard =
     .delete = حذف
     .resend = حذف وارسال
+
+stats =
+    .stats = bot stats
+    users: {$usersCount}
+    posts: {$postsCount}
+    channels: {$channelsCount}
+    groups: {$groupsCount}
+    owner: {$owner}
+    posts in channels: {$postsInChannels}
+    channels in list: {$listChannelsCount}
+    control group: {$controlGroup}
+    is premium?: {$isPremium}
+    expire at: {$expireAt}

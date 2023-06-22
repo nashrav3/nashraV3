@@ -181,3 +181,17 @@ remove-channel =
 broadcast-status-keyboard =
     .delete = delete
     .resend = resend
+
+stats =
+    .stats = bot stats
+    users: {$usersCount}
+    posts: {$postsCount}
+    channels: {$channelsCount}
+    groups: {$groupsCount}
+    owner: {$owner}
+    posts in channels: {$postsInChannels}
+    list channels: {$listChannelsCount}
+    control group: {$controlGroup}
+    is premium?: {$isPremium}
+    expire at: {$expireAt}
+

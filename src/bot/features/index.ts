@@ -10,5 +10,6 @@ export * from "./preview-post.feature";
 export * from "./remove-channel";
 export * from "./send-to-list.feature";
 export * from "./set-group.feature";
+export * from "./stats.feature";
 export * from "./unhandled.feature";
 export * from "./verify-chat.feature";
