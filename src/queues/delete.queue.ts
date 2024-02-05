@@ -104,7 +104,7 @@ export function createDeleteWorker({
       "progress",
       (job: Job<DeleteData, unknown, string>, progress: object | number) => {
         if (!job) return;
-        const { chatId, _doneCount, _totalCount, _statusMessageId } = job.data;
+        const { chatId } = job.data;
         container.logger.info(
           `Broadcast job progress ${JSON.stringify(progress)}`,
           { chatId },

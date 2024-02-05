@@ -68,7 +68,7 @@ export function createBroadcastWorker({
   connection,
   prisma,
   handleError,
-  _container,
+  // container,
 }: {
   connection: Redis;
   prisma: PrismaClientX;

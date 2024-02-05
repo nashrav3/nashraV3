@@ -14,7 +14,7 @@ export const createServer = async (
   },
   container: Container,
 ) => {
-  const { logger, _prisma, queues } = container;
+  const { logger, queues } = container;
 
   const server = fastify({
     logger,

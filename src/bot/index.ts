@@ -57,7 +57,7 @@ export const createBot = (
     protectedBot.use(updateLogger());
   }
   protectedBot.use(abdoIgnoreOld());
-  protectedBot.use(setScope());
+  protectedBot.use(setScope);
   protectedBot.use(autoChatAction(bot.api));
   protectedBot.use(hydrateReply);
   protectedBot.use(hydrate());

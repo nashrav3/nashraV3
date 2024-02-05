@@ -39,7 +39,7 @@ export const createPrisma = (logger: Logger) => {
 
   prisma.$on("query", (event: Prisma.QueryEvent) => {
     const parameters = parseParameters(
-      e.params.replaceAll(
+      event.params.replaceAll(
         /\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.?\d* UTC/g,
         (date) => `"${date}"`,
       ),
