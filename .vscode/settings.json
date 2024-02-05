@@ -1,12 +1,14 @@
 {
     "typescript.tsdk": "node_modules/typescript/lib",
     "eslint.codeActionsOnSave.mode": "problems",
-    "editor.formatOnSave": true,
-    "javascript.format.enable": false,
-    "typescript.format.enable": true,
-    "eslint.format.enable": true,
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
     "[typescript]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
-    }
-}
+      "editor.defaultFormatter": "rvest.vs-code-prettier-eslint"
+    },
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "always"
+ },
+    "editor.defaultFormatter": "rvest.vs-code-prettier-eslint",
+    "eslint.format.enable": true,
+    "eslint.codeActionsOnSave.rules": ["all"]
+  }

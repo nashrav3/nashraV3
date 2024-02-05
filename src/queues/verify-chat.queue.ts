@@ -68,8 +68,8 @@ export function createVerifyChatWorker({
       if (!idOrUsername) throw new Error("chatId or username is required");
 
       await sendBroadcast(jobBot, idOrUsername)
-        .catch(async (err: GrammyError) => {
-          const errorDescription = err.description;
+        .catch(async (error: GrammyError) => {
+          const errorDescription = error.description;
           const specificData = errorMappings[errorDescription];
           const shortError = getShortError(errorDescription);
           if (specificData && commonData.where.botId_chatId.chatId !== 0) {
@@ -126,29 +126,17 @@ export function createVerifyChatWorker({
           if (chat.type === "channel") {
             try {
               const administrators = await jobBot.api.getChatAdministrators(
-                chat.id
+                chat.id,
               );
               const isAdmin = administrators.some(
                 (admin) =>
                   admin.user.id === botId &&
                   admin.status === "administrator" &&
-                  admin.can_post_messages
+                  admin.can_post_messages,
                 // && admin.can_invite_users
               );
 
-              if (!isAdmin) {
-                await prisma.botChat.update({
-                  ...commonData,
-                  data: {
-                    needAdminRights: true,
-                  },
-                });
-                await job.updateProgress({
-                  ok: false,
-                  chatId,
-                  shortError: "need_admin_rights",
-                });
-              } else {
+              if (isAdmin) {
                 await prisma.botChat.update({
                   ...commonData,
                   data: {
@@ -168,11 +156,23 @@ export function createVerifyChatWorker({
                   },
                   update: {},
                 });
+              } else {
+                await prisma.botChat.update({
+                  ...commonData,
+                  data: {
+                    needAdminRights: true,
+                  },
+                });
+                await job.updateProgress({
+                  ok: false,
+                  chatId,
+                  shortError: "need_admin_rights",
+                });
               }
-            } catch (e) {
-              if (e instanceof GrammyError) {
-                switch (e.error_code) {
-                  case 400:
+            } catch (error) {
+              if (error instanceof GrammyError) {
+                switch (error.error_code) {
+                  case 400: {
                     await prisma.botChat.update({
                       ...commonData,
                       data: {
@@ -180,9 +180,11 @@ export function createVerifyChatWorker({
                       },
                     });
                     break;
-                  default:
+                  }
+                  default: {
                     // eslint-disable-next-line no-console
-                    console.error(e);
+                    console.error(error);
+                  }
                 }
               }
             }
@@ -220,7 +222,7 @@ export function createVerifyChatWorker({
     {
       connection,
       concurrency: 10,
-    }
+    },
   )
     .on("failed", handleError)
     .on(
@@ -245,13 +247,13 @@ export function createVerifyChatWorker({
           await container.redis.expire(key, 1000);
           await container.redis.append(
             key,
-            `\n${myProgress.shortError}=${username || chatId}`
+            `\n${myProgress.shortError}=${username || chatId}`,
           );
         }
         const errors = groupErrors(
           (await container.redis.get(
-            `${botId}:${statusMessageChatId}:${statusMessageId}`
-          )) || ""
+            `${botId}:${statusMessageChatId}:${statusMessageId}`,
+          )) || "",
         );
         let pb = "";
         if (doneCount % 30 === 0 || doneCount === totalCount) {
@@ -275,7 +277,7 @@ export function createVerifyChatWorker({
               errors, // TODO: make error translations
               pb,
               emojis: getRandomEmojiString(),
-            }
+            },
           );
 
           jobBot.api
@@ -285,31 +287,31 @@ export function createVerifyChatWorker({
               statusMessageText,
               {
                 parse_mode: "HTML",
-              }
+              },
             )
-            .catch(async (e) => {
+            .catch(async (error) => {
               // eslint-disable-next-line no-console
-              if (e.error_code === 400 || e.retry_after) {
+              if (error.error_code === 400 || error.retry_after) {
                 const statusMessage = await jobBot.api.sendMessage(
                   statusMessageChatId,
                   statusMessageText,
                   {
                     parse_mode: "HTML",
-                  }
+                  },
                 );
                 job.update({
                   ...job.data,
                   statusMessageId: statusMessage.message_id,
                 });
                 // eslint-disable-next-line no-console
-              } else console.error(e);
+              } else console.error(error);
             });
         }
         container.logger.info(
           `doneCount: ${doneCount} totalCount: ${totalCount} ${pb} progress ${JSON.stringify(
-            progress
-          )}`
+            progress,
+          )}`,
         );
-      }
+      },
     );
 }

@@ -10,7 +10,7 @@ import type { PrismaClientX } from "~/prisma";
 const sendBroadcast = async (
   jobBot: Bot,
   chatId: number,
-  messageId: number
+  messageId: number,
 ) => {
   return jobBot.api.deleteMessage(chatId, messageId);
 };
@@ -54,12 +54,12 @@ export function createDeleteWorker({
         botInfo: { id: botId } as UserFromGetMe,
       });
       await sendBroadcast(jobBot, chatId, messageId).then(
-        async (msg) => {
+        async (message) => {
           await job.updateProgress({
             ok: true,
             chatId,
           });
-          if (!msg) return;
+          if (!message) return;
           await prisma.sent.update({
             where: {
               messageId_chatId: {
@@ -72,12 +72,12 @@ export function createDeleteWorker({
             },
           });
         },
-        async (err: GrammyError) => {
+        async (error: GrammyError) => {
           const commonData = {
             where: prisma.botChat.byBotIdChatId(botId, chatId),
           };
 
-          const errorDescription = err.description;
+          const errorDescription = error.description;
           const specificData = errorMappings[errorDescription];
 
           if (specificData) {
@@ -91,24 +91,24 @@ export function createDeleteWorker({
               errorDescription,
             });
           }
-        }
+        },
       );
     },
     {
       connection,
       concurrency: 10,
-    }
+    },
   )
     .on("failed", handleError)
     .on(
       "progress",
       (job: Job<DeleteData, unknown, string>, progress: object | number) => {
         if (!job) return;
-        const { chatId, doneCount, totalCount, statusMessageId } = job.data;
+        const { chatId, _doneCount, _totalCount, _statusMessageId } = job.data;
         container.logger.info(
           `Broadcast job progress ${JSON.stringify(progress)}`,
-          { chatId }
+          { chatId },
         );
-      }
+      },
     );
 }

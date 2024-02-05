@@ -86,11 +86,11 @@ const startMenu = new MenuTemplate<Context>((ctx) => {
 // });
 
 const confirmDeleteGroupMenu = new MenuTemplate<Context>((ctx) =>
-  ctx.t(`set_group.confirm_delete_messageText`)
+  ctx.t(`set_group.confirm_delete_messageText`),
 );
 
 const groupDeletedSuccessfullyMenu = new MenuTemplate<Context>((ctx) =>
-  ctx.t(`set_group.group_deleted_successfully_messageText`)
+  ctx.t(`set_group.group_deleted_successfully_messageText`),
 );
 
 // const botDeletedSuccessfullyMenu = new MenuTemplate<Context>((ctx) =>
@@ -418,7 +418,7 @@ startMenu.submenu((ctx) => ctx.t(`start_menu.my_bots`), "bots", myBotsMenu, {
 confirmDeleteGroupMenu.submenu(
   (ctx) => ctx.t(`set_group.confirm_delete_group_yes`),
   "yes",
-  groupDeletedSuccessfullyMenu
+  groupDeletedSuccessfullyMenu,
 );
 
 confirmDeleteGroupMenu.interact(
@@ -429,7 +429,7 @@ confirmDeleteGroupMenu.interact(
       await ctx.answerCallbackQuery("not implemented yet");
       return "..";
     },
-  }
+  },
 );
 // confirm delete group menu end
 

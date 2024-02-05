@@ -2,10 +2,8 @@ import { createBullBoard } from "@bull-board/api";
 import { BullMQAdapter } from "@bull-board/api/bullMQAdapter";
 import { FastifyAdapter } from "@bull-board/fastify";
 import fastify from "fastify";
-import { BotError, webhookCallback } from "grammy";
-import { register } from "prom-client";
+import { webhookCallback } from "grammy";
 import type { Bot } from "~/bot";
-import { errorHandler } from "~/bot/handlers";
 import type { Container } from "~/container";
 
 export const createServer = async (
@@ -14,53 +12,55 @@ export const createServer = async (
   }: {
     getBot: (token: string) => Promise<Bot>;
   },
-  container: Container
+  container: Container,
 ) => {
-  const { logger, prisma } = container;
+  const { logger, _prisma, queues } = container;
 
   const server = fastify({
     logger,
   });
 
-  server.setErrorHandler(async (error, req, res) => {
-    if (error instanceof BotError) {
-      errorHandler(error);
+  server.setErrorHandler(async (error, request, response) => {
+    logger.error(error);
 
-      await res.code(200).send({});
-    } else {
-      logger.error(error);
-
-      await res.status(500).send({ error: "Oops! something went wrong." });
-    }
+    await response.status(500).send({ error: "Oops! Something went wrong." });
   });
 
-  server.post("/:token([0-9]+:[a-zA-Z0-9_-]+)", async (req, res) => {
-    const { token } = req.params as { token: string };
+  server.post("/:token([0-9]+:[a-zA-Z0-9_-]+)", async (request, response) => {
+    const { token } = request.params as { token: string };
 
-    return webhookCallback(await getBot(token), "fastify")(req, res);
+    return webhookCallback(await getBot(token), "fastify")(request, response);
   });
 
-  server.get(`/metrics`, async (req, res) => {
-    try {
-      const appMetrics = await register.metrics();
-      const prismaMetrics = await prisma.$metrics.prometheus();
-      const metrics = appMetrics + prismaMetrics;
+  // server.get(`/metrics`, async (req, res) => {
+  //   try {
+  //     const appMetrics = await register.metrics();
+  //     const prismaMetrics = await prisma.$metrics.prometheus();
+  //     const metrics = appMetrics + prismaMetrics;
 
-      await res.header("Content-Type", register.contentType).send(metrics);
-    } catch (err) {
-      await res.status(500).send(err);
-    }
-  });
+  //     await res.header("Content-Type", register.contentType).send(metrics);
+  //   } catch (err) {
+  //     await res.status(500).send(err);
+  //   }
+  // });
+
+  const {
+    verifyChat,
+    broadcast,
+    broadcastFlows,
+    listFlow,
+    delete: deleteQueue,
+  } = queues;
 
   const serverAdapter = new FastifyAdapter();
 
   createBullBoard({
     queues: [
-      new BullMQAdapter(container.queues.verifyChat),
-      new BullMQAdapter(container.queues.broadcast),
-      new BullMQAdapter(container.queues.broadcastFlows),
-      new BullMQAdapter(container.queues.listFlow),
-      new BullMQAdapter(container.queues.delete),
+      new BullMQAdapter(verifyChat),
+      new BullMQAdapter(broadcast),
+      new BullMQAdapter(broadcastFlows),
+      new BullMQAdapter(listFlow),
+      new BullMQAdapter(deleteQueue),
     ],
     serverAdapter,
   });

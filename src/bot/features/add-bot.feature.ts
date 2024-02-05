@@ -9,7 +9,7 @@ const composer = new Composer<Context>();
 const feature = composer.chatType("private");
 
 feature.hears(
-  /\d{5,15}:[A-Za-z0-9-_]{30,40}/,
+  /\d{5,15}:[\w-]{30,40}/,
   logHandle("handle-token"),
   chatAction("typing"),
   async (ctx) => {
@@ -27,26 +27,25 @@ feature.hears(
         });
       });
 
-    const dbBot = await ctx.prisma.bot.upsert({
+    const databaseBot = await ctx.prisma.bot.upsert({
       where: ctx.prisma.bot.byBotId(bot.botInfo.id),
       create: ctx.prisma.bot.createNewBotInput(bot.botInfo, ctx.from.id, token),
       update: ctx.prisma.bot.updateBotInput(bot.botInfo, ctx.from.id, token),
     });
-    if (dbBot.isNew)
-      await ctx.reply(
-        ctx.t("add-bot.new-bot-added", {
-          firstName: bot.botInfo.first_name,
-          username: bot.botInfo.username,
-        })
-      );
-    else
-      await ctx.reply(
-        ctx.t("add-bot.bot-updated", {
-          firstName: bot.botInfo.first_name,
-          username: bot.botInfo.username,
-        })
-      );
-  }
+    await (databaseBot.isNew
+      ? ctx.reply(
+          ctx.t("add-bot.new-bot-added", {
+            firstName: bot.botInfo.first_name,
+            username: bot.botInfo.username,
+          }),
+        )
+      : ctx.reply(
+          ctx.t("add-bot.bot-updated", {
+            firstName: bot.botInfo.first_name,
+            username: bot.botInfo.username,
+          }),
+        ));
+  },
 );
 
 export { composer as addBotFeature };

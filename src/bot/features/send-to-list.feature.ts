@@ -17,7 +17,7 @@ feature.command(
     const { id: botId, username: botUsername } = ctx.me;
 
     const matchResult = ctx.message.text.match(
-      /\s+(?<postNumber>\d+)(?=(?:.*\bat\s+(?<sendAt>\d+(?::\d+)?\s*\S+))?)(?=(?:.*\bfor\s+(?<duration>\d+\s*\S+))?)(?=(?:.*\bafter\s+(?<after>\d+\s*\S+))?)(?=(?:.*\buntil\s+(?<until>\d+(?::\d+)?\s*\S+))?)/i
+      /\s+(?<postNumber>\d+)(?=(?:.*\bat\s+(?<sendAt>\d+(?::\d+)?\s*\S+))?)(?=(?:.*\bfor\s+(?<duration>\d+\s*\S+))?)(?=(?:.*\bafter\s+(?<after>\d+\s*\S+))?)(?=(?:.*\buntil\s+(?<until>\d+(?::\d+)?\s*\S+))?)/i,
     );
     if (matchResult === null || !matchResult.groups?.postNumber) return; // TODO: reply with error message
 
@@ -35,10 +35,10 @@ feature.command(
     await ctx
       .reply(
         `post: ${postNumber}, sendAt: ${ms(sendAt)}, duration: ${ms(
-          duration
-        )}, until: ${ms(until)}, after: ${ms(after)}\n\n`
+          duration,
+        )}, until: ${ms(until)}, after: ${ms(after)}\n\n`,
       )
-      .catch((e) => ctx.reply(e));
+      .catch((error) => ctx.reply(error));
     const post = await ctx.prisma.post.findFirst({
       where: ctx.prisma.post.byPostNumber(postNumber, botId),
       select: ctx.prisma.post.postSelectValues(),
@@ -56,11 +56,9 @@ feature.command(
       },
     });
     if (existingFlow) {
-      if (!existingFlow.finished) {
-        await ctx.reply(ctx.t("already-in-progress"));
-      } else {
-        await ctx.reply(ctx.t("already-sent"));
-      }
+      await (existingFlow.finished
+        ? ctx.reply(ctx.t("already-sent"))
+        : ctx.reply(ctx.t("already-in-progress")));
       return;
     }
 
@@ -75,7 +73,8 @@ feature.command(
       },
       take: config.BATCH_SIZE,
     });
-    const cursor = chats[chats.length - 1] ? chats[chats.length - 1].id : 0; // Use the last chat's ID as the new cursor
+    const lastChat = chats.at(-1);
+    const cursor = (lastChat && lastChat.id) || 0; // Use the last chat's ID as the new cursor
 
     const children = chats.map((chat) => {
       return {
@@ -88,9 +87,9 @@ feature.command(
           post: {
             // to remove unnecesary null values in job data
             postId: post.postId,
-            text: post.text ? post.text : undefined,
-            fileId: post.fileId ? post.fileId : undefined,
-            postOptions: post.postOptions ? post.postOptions : undefined,
+            text: post.text || undefined,
+            fileId: post.fileId || undefined,
+            postOptions: post.postOptions || undefined,
           }, // TODO: all jobs in a flow have same post so make it in one place and make jobs able to access it to save memory
         },
         opts: {
@@ -136,7 +135,7 @@ feature.command(
         childrenCount: flowMetadata.children.length,
       },
     });
-  }
+  },
 );
 
 export { composer as sendToListFeature };

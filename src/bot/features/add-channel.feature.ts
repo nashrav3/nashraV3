@@ -8,17 +8,16 @@ const feature = composer.chatType(["group", "supergroup"]);
 
 feature.command(["a", "add"], logHandle("handle /add"), async (ctx) => {
   const botId = ctx.me.id;
-  const chatId = ctx.chat.id;
   const matches = [
     ...ctx.message.text.matchAll(
-      /((?:https?:\/\/)?(?:t|telegram).(?:me|dog)\/|@)(?<username>(?!.*?[_]{2,})[a-zA-Z][a-zA-Z0-9_]{3,32})|(?<id>-\d{5,})/gi
+      /((?:https?:\/\/)?(?:t|telegram).(?:me|dog)\/|@)(?<username>(?!.*?_{2,})[a-z]\w{3,32})|(?<id>-\d{5,})/gi,
     ),
   ];
   const chats = [
     ...new Set(
       matches.flatMap((match) =>
-        [match.groups?.username, match.groups?.id].filter(Boolean)
-      )
+        [match.groups?.username, match.groups?.id].filter(Boolean),
+      ),
     ),
   ] as string[];
   const { queues } = ctx.container;
@@ -28,7 +27,8 @@ feature.command(["a", "add"], logHandle("handle /add"), async (ctx) => {
   });
 
   const statusMessage = await ctx.reply(ctx.t("please-wait"));
-  chats.forEach((chat) => {
+  for (let index = 0; index < chats.length; index += 1) {
+    const chat = chats[index];
     queues.verifyChat.add(
       `verifyChat:${ctx.me.username}:${chat}`,
       {
@@ -37,14 +37,15 @@ feature.command(["a", "add"], logHandle("handle /add"), async (ctx) => {
         languageCode: ctx.scope.chat?.languageCode || undefined,
         statusMessageId: statusMessage.message_id,
         statusMessageChatId: statusMessage.chat.id,
-        doneCount: chats.indexOf(chat) + 1,
+        doneCount: index + 1,
         totalCount: chats.length,
-        username: !chat.startsWith("-") ? `@${chat}` : undefined,
+        username: chat.startsWith("-") ? undefined : `@${chat}`,
       },
       {
-        delay: 150 * chats.indexOf(chat),
-      }
+        delay: 150 * index,
+      },
     );
-  });
+  }
 });
+
 export { composer as addChannelFeature };

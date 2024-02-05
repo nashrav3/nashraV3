@@ -1,7 +1,7 @@
 import { Composer } from "grammy";
 import { Context } from "../context";
-import { escapeHTML } from "../helpers/escape-html";
-import { logHandle } from "../helpers/logging";
+import { escapeHTML } from "../helpers/escape-html.js";
+import { logHandle } from "../helpers/logging.js";
 
 const composer = new Composer<Context>();
 const feature = composer.chatType(["group", "supergroup"]);
@@ -19,9 +19,9 @@ feature.command(
     await ctx.reply(
       ctx.t(`set-group.group-set-successfully`, {
         title: escapeHTML(ctx.chat.title),
-      })
+      }),
     );
-  }
+  },
 );
 
 feature.on(
@@ -41,9 +41,9 @@ feature.on(
     await ctx.reply(
       ctx.t(`set_group.group_set_successfully`, {
         title: escapeHTML(ctx.chat.title),
-      })
+      }),
     );
-  }
+  },
 );
 
 feature
@@ -75,7 +75,7 @@ feature
       ctx.t("set_group.bot_restricted_from_adminsGroup", {
         title,
         firstName,
-      })
+      }),
     );
   });
 

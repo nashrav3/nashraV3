@@ -1,56 +1,80 @@
 {
     "env": {
-        "es2021": true,
-        "node": true
+      "es2021": true,
+      "node": true
     },
     "extends": [
-        "airbnb-base",
-        "eslint:recommended",
-        "plugin:prettier/recommended",
-        "plugin:@typescript-eslint/recommended"
+      "airbnb-base",
+      "plugin:@typescript-eslint/recommended",
+      "plugin:unicorn/recommended",
+      "plugin:prettier/recommended"
     ],
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
-        "project": [
-            "tsconfig.json"
-        ]
+      "project": [
+        "tsconfig.json"
+      ]
     },
     "plugins": [
-        "@typescript-eslint",
-        "prettier",
-        "import"
+      "@typescript-eslint",
+      "prettier",
+      "unicorn",
+      "import"
     ],
     "rules": {
-        "prettier/prettier":[ "error", {
-            "endOfLine": "auto"
-        }],
-        "arrow-body-style": "off",
-        "prefer-arrow-callback": "off",
-        "consistent-return": "off",
-        "import/prefer-default-export": "off",
-        "import/extensions": "off",
-        "no-underscore-dangle": "off"
-    },
-    "overrides": [
+      "no-restricted-syntax": [
+        "error",
         {
-            "files": ["src/bot/conversations/*"],
-            "rules": {
-                "no-loop-func": "off",
-                "no-await-in-loop": "off",
-                "no-param-reassign": "off",
-                "no-continue": "off",
-                "no-constant-condition": "off"
-            }
-        }
-    ],
-    "settings": {
-        "import/parsers": {
-            "@typescript-eslint/parser": [".ts"]
+          "selector": "ForInStatement",
+          "message": "for..in loops iterate over the entire prototype chain, which is virtually never what you want. Use Object.{keys,values,entries}, and iterate over the resulting array."
         },
-        "import/resolver": {
-            "typescript": {
-                "extensions": [".js", ".ts"]
-            }
+        {
+          "selector": "LabeledStatement",
+          "message": "Labels are a form of GOTO; using them makes code confusing and hard to maintain and understand."
+        },
+        {
+          "selector": "WithStatement",
+          "message": "`with` is disallowed in strict mode because it makes code impossible to predict and optimize."
         }
+      ],
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        {
+          "varsIgnorePattern": "^_",
+          "argsIgnorePattern": "^_"
+        }
+      ],
+      "arrow-body-style": "off",
+      "prefer-arrow-callback": "off",
+      "consistent-return": "off",
+      "import/prefer-default-export": "off",
+      "import/extensions": "off",
+      "no-underscore-dangle": "off",
+      "prettier/prettier": [
+        "error",
+        {
+          "trailingComma": "all"
+        }
+      ],
+      "unicorn/no-array-method-this-argument": "off",
+      "unicorn/no-array-callback-reference": "off",
+      "unicorn/prevent-abbreviations": [
+        "error",
+        {
+          "replacements": {
+            "ctx": false
+          }
+        }
+      ]
+    },
+    "settings": {
+      "import/parsers": {
+        "@typescript-eslint/parser": [".ts"]
+      },
+      "import/resolver": {
+        "typescript": {
+          "extensions": [".js", ".ts"]
+        }
+      }
     }
-}
+  }

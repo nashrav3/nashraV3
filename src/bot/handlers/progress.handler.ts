@@ -7,7 +7,7 @@ import { getRandomEmojiString } from "../helpers/random-emojis";
 import { tokenToBotId } from "../helpers/token-to-id";
 
 export const broadcastFlowProgressHandler = async (
-  job: Job<BroadcastFlowsData>
+  job: Job<BroadcastFlowsData>,
 ) => {
   const { chatId, doneCount, totalCount, token, statusMessageId } = job.data;
   const botId = tokenToBotId(token);
@@ -28,20 +28,22 @@ export const broadcastFlowProgressHandler = async (
     .editMessageText(chatId, statusMessageId, statusMessageText, {
       parse_mode: "HTML",
     })
-    .catch(async (e) => {
+    .catch(async (error) => {
       // eslint-disable-next-line no-console
-      if (e.error_code === 400) {
+      if (error.error_code === 400) {
         const statusMessage = await jobBot.api.sendMessage(
           chatId,
           statusMessageText,
           {
             parse_mode: "HTML",
-          }
+          },
         );
         job.update({
           ...job.data,
           statusMessageId: statusMessage.message_id,
         });
-      } else console.error(e);
+      } else {
+        throw error;
+      }
     });
 };

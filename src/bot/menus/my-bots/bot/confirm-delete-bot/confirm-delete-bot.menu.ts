@@ -3,7 +3,7 @@ import { Context } from "~/bot/context";
 import { botDeletedSuccessfullyMenu } from "./bot-deleted-successfully/bot-deleted-successfully.menu";
 
 export const confirmDeleteBotMenu = new MenuTemplate<Context>((ctx) =>
-  ctx.t(`delete_bot.confirm_delete_messageText`)
+  ctx.t(`delete_bot.confirm_delete_messageText`),
 );
 
 confirmDeleteBotMenu.submenu(
@@ -11,7 +11,7 @@ confirmDeleteBotMenu.submenu(
     return ctx.t(`delete_bot.confirm_delete_bot_yes`);
   },
   "yes",
-  botDeletedSuccessfullyMenu
+  botDeletedSuccessfullyMenu,
 );
 
 confirmDeleteBotMenu.interact(
@@ -22,5 +22,5 @@ confirmDeleteBotMenu.interact(
       await ctx.answerCallbackQuery("not implemented yet");
       return "..";
     },
-  }
+  },
 );

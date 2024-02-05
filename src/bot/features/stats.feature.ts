@@ -96,9 +96,9 @@ feature.command(
         expireAt: expireAt?.toLocaleString("en-GB", {
           timeZone: timezone || undefined,
         }),
-      })
+      }),
     );
-  }
+  },
 );
 
 export { composer as statsFeature };

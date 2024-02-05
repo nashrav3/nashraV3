@@ -3,9 +3,9 @@ import { i18n } from "~/bot/i18n";
 
 export const broadcastStatusKeyboard = async (
   jobId: string,
-  languageCode = "en"
+  languageCode = "en",
 ) => {
-  return new InlineKeyboard([
+  return InlineKeyboard.from([
     [
       {
         text: i18n.t(languageCode, "broadcast-status-keyboard.delete"),

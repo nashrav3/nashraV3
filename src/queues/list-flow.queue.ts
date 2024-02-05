@@ -88,9 +88,8 @@ export function createListFlowWorker({
               },
               take: config.BATCH_SIZE,
             });
-            const cursor = chats[chats.length - 1]
-              ? chats[chats.length - 1].id
-              : 0; // Use the last chat's ID as the new cursor
+            const lastChat = chats.at(-1);
+            const cursor = lastChat ? lastChat.id : 0; // Use the last chat's ID as the new cursor
 
             // eslint-disable-next-line no-loop-func
             const children = chats.map((chat) => {
@@ -128,22 +127,21 @@ export function createListFlowWorker({
             break;
           }
           case Step.Second: {
+            const { cursor } = job.data;
             const chats = await prisma.list.findMany({
               take: config.BATCH_SIZE,
               skip: 1,
               cursor: {
-                id: job.data.cursor,
+                id: cursor,
               },
               where: { botId },
               orderBy: {
                 id: "asc",
               },
             });
-
-            const newCursor = chats[chats.length - 1]
-              ? chats[chats.length - 1].id
-              : 0; // Use the last chat's ID as the new cursor
-            chats.forEach((chat) => {
+            const lastChat = chats.at(-1);
+            const newCursor = lastChat ? lastChat.id : 0; // Use the last chat's ID as the new cursor
+            for (const chat of chats) {
               container.queues.broadcast.add(
                 `chatActionTyping`,
                 {
@@ -160,9 +158,9 @@ export function createListFlowWorker({
                     queue: job.queueQualifiedName,
                   },
                   removeOnComplete: false,
-                }
+                },
               );
-            });
+            }
             await job.update({
               ...job.data,
               step: Step.Third,
@@ -213,7 +211,7 @@ export function createListFlowWorker({
     },
     {
       connection,
-    }
+    },
   )
     .on("failed", handleError)
     .on(
@@ -258,24 +256,26 @@ export function createListFlowWorker({
             parse_mode: "HTML",
             reply_markup: keyboard,
           })
-          .catch(async (e) => {
+          .catch(async (error) => {
             // eslint-disable-next-line no-console
-            if (e.error_code === 400) {
+            if (error.error_code === 400) {
               const statusMessage = await jobBot.api.sendMessage(
                 chatId,
                 statusMessageText,
                 {
                   parse_mode: "HTML",
                   reply_markup: keyboard,
-                }
+                },
               );
               job.update({
                 ...job.data,
                 statusMessageId: statusMessage.message_id,
               });
-            } else console.error(e);
+            } else {
+              throw error;
+            }
           });
         container.logger.info(`${pb} progress ${JSON.stringify(progress)}`);
-      }
+      },
     );
 }

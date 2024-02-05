@@ -3,23 +3,23 @@ import { Context } from "~/bot/context";
 import { i18n } from "~/bot/middlewares";
 import { Container } from "~/container";
 
-export const createPostConversation = (container: Container) =>
+export const createPostConversation = (_container: Container) =>
   createConversation(
     async (conversation: Conversation<Context>, ctx: Context) => {
       await conversation.run(i18n());
 
       await ctx.reply("Please send me your name");
 
-      ctx = await conversation.wait();
+      const conversationCtx = await conversation.wait();
 
-      if (ctx.has("message:text")) {
-        ctx.chatAction = "typing";
+      if (conversationCtx.has("message:text")) {
+        conversationCtx.chatAction = "typing";
         await conversation.sleep(1000);
 
-        await ctx.reply(`Hello, ${ctx.message.text}!`);
+        await conversationCtx.reply(`Hello, ${conversationCtx.message.text}!`);
       } else {
-        await ctx.reply("Please send me your name");
+        await conversationCtx.reply("Please send me your name");
       }
     },
-    "create-post"
+    "create-post",
   );

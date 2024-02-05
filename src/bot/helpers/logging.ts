@@ -1,57 +1,21 @@
 import { Middleware } from "grammy";
-import _ from "lodash";
+import type { Update } from "@grammyjs/types";
 import type { Context } from "~/bot/context";
-import { updateHandledCounter } from "~/metrics";
 
-export const getChatInfo = (ctx: Context) => {
-  if (!_.isNil(ctx.chat)) {
-    return {
-      chat: _.pick(ctx.chat, ["id", "type"]),
-    };
-  }
+export function getUpdateInfo(ctx: Context): Omit<Update, "update_id"> {
+  // eslint-disable-next-line camelcase, @typescript-eslint/no-unused-vars
+  const { update_id, ...update } = ctx.update;
 
-  return {};
-};
+  return update;
+}
 
-export const getSenderInfo = (ctx: Context) => {
-  if (!_.isNil(ctx.senderChat)) {
-    return {
-      sender: _.pick(ctx.senderChat, ["id", "type"]),
-    };
-  }
-
-  if (!_.isNil(ctx.from)) {
-    return {
-      sender: _.pick(ctx.from, ["id"]),
-    };
-  }
-
-  return {};
-};
-
-export const getMetadata = (ctx: Context) => ({
-  message_id: ctx.msg?.message_id,
-  ...getChatInfo(ctx),
-  ...getSenderInfo(ctx),
-});
-
-export const getFullMetadata = (ctx: Context) => ({
-  ...ctx.update,
-});
-
-export const logHandle =
-  (id: string): Middleware<Context> =>
-  (ctx, next) => {
-    updateHandledCounter.inc({
-      from_id: ctx.from?.id,
-      chat_id: ctx.chat?.id,
-      handler_id: id,
-    });
-
+export function logHandle(id: string): Middleware<Context> {
+  return (ctx, next) => {
     ctx.logger.info({
       msg: `handle ${id}`,
-      ...(id === "unhandled" ? getFullMetadata(ctx) : getMetadata(ctx)),
+      ...(id.startsWith("unhandled") ? { update: getUpdateInfo(ctx) } : {}),
     });
 
     return next();
   };
+}

@@ -1,22 +1,34 @@
+import { performance } from "node:perf_hooks";
 import { Middleware } from "grammy";
 import type { Context } from "~/bot/context";
-import { getFullMetadata } from "~/bot/helpers/logging";
+import { getUpdateInfo } from "~/bot/helpers/logging";
 
-export const updateLogger = (): Middleware<Context> => (ctx, next) => {
-  ctx.api.config.use((prev, method, payload, signal) => {
-    ctx.logger.debug({
-      msg: "bot api call",
-      method,
-      payload,
+export function updateLogger(): Middleware<Context> {
+  return async (ctx, next) => {
+    ctx.api.config.use((previous, method, payload, signal) => {
+      ctx.logger.debug({
+        msg: "bot api call",
+        method,
+        payload,
+      });
+
+      return previous(method, payload, signal);
     });
 
-    return prev(method, payload, signal);
-  });
+    ctx.logger.debug({
+      msg: "update received",
+      update: getUpdateInfo(ctx),
+    });
 
-  ctx.logger.debug({
-    msg: "update received",
-    ...getFullMetadata(ctx),
-  });
-
-  return next();
-};
+    const startTime = performance.now();
+    try {
+      await next();
+    } finally {
+      const endTime = performance.now();
+      ctx.logger.debug({
+        msg: "update processed",
+        duration: endTime - startTime,
+      });
+    }
+  };
+}

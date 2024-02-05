@@ -18,24 +18,26 @@ const sendBroadcast = async (
       postOptions: true;
     };
   }>,
-  chatId: number
+  chatId: number,
 ) => {
   const { type, fileId, text, postOptions } = post;
-  const opts = JSON.parse(postOptions as string);
+  const options = JSON.parse(postOptions as string);
 
   // eslint-disable-next-line no-constant-condition
   // if (1) return jobBot.api.getChat(chatId);
 
-  if (text) return jobBot.api.sendMessage(chatId, text, opts);
+  if (text) return jobBot.api.sendMessage(chatId, text, options);
   if (!fileId) throw new Error("no file Id !!");
-  if (type === "photo") return jobBot.api.sendPhoto(chatId, fileId, opts);
-  if (type === "video") return jobBot.api.sendVideo(chatId, fileId, opts);
-  if (type === "audio") return jobBot.api.sendAudio(chatId, fileId, opts);
-  if (type === "document") return jobBot.api.sendDocument(chatId, fileId, opts);
-  if (type === "sticker") return jobBot.api.sendSticker(chatId, fileId, opts);
+  if (type === "photo") return jobBot.api.sendPhoto(chatId, fileId, options);
+  if (type === "video") return jobBot.api.sendVideo(chatId, fileId, options);
+  if (type === "audio") return jobBot.api.sendAudio(chatId, fileId, options);
+  if (type === "document")
+    return jobBot.api.sendDocument(chatId, fileId, options);
+  if (type === "sticker")
+    return jobBot.api.sendSticker(chatId, fileId, options);
   if (type === "animation")
-    return jobBot.api.sendAnimation(chatId, fileId, opts);
-  if (type === "voice") return jobBot.api.sendVoice(chatId, fileId, opts);
+    return jobBot.api.sendAnimation(chatId, fileId, options);
+  if (type === "voice") return jobBot.api.sendVoice(chatId, fileId, options);
 };
 
 export type BroadcastData = {
@@ -66,7 +68,7 @@ export function createBroadcastWorker({
   connection,
   prisma,
   handleError,
-  container,
+  _container,
 }: {
   connection: Redis;
   prisma: PrismaClientX;
@@ -83,12 +85,12 @@ export function createBroadcastWorker({
         botInfo: { id: botId } as UserFromGetMe,
       });
       await sendBroadcast(jobBot, post, chatId)
-        .catch(async (err: GrammyError) => {
+        .catch(async (error: GrammyError) => {
           const commonData = {
             where: prisma.botChat.byBotIdChatId(botId, chatId),
           };
 
-          const errorDescription = err.description;
+          const errorDescription = error.description;
           const specificData = errorMappings[errorDescription];
 
           if (specificData) {
@@ -104,16 +106,16 @@ export function createBroadcastWorker({
             });
           }
         })
-        .then(async (msg) => {
+        .then(async (message) => {
           job.updateProgress({
             ok: true,
             chatId,
             serialId,
           });
-          if (!msg) return;
+          if (!message) return;
           await prisma.sent.create({
             data: {
-              messageId: msg.message_id,
+              messageId: message.message_id,
               chatId,
               botId,
               postId: post.postId,
@@ -124,7 +126,7 @@ export function createBroadcastWorker({
     {
       connection,
       concurrency: 10,
-    }
+    },
   ).on("failed", handleError);
   // .on(
   //   "progress",

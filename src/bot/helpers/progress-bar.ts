@@ -21,8 +21,8 @@
 export const progressBar = ({
   value,
   length = 40,
-  vmin = 0.0,
-  vmax = 1.0,
+  vmin = 0,
+  vmax = 1,
   progressive = false,
 }: {
   value: number;
@@ -42,16 +42,17 @@ export const progressBar = ({
   const v = normalized_value * length;
   const x = Math.floor(v); // integer part
   const y = v - x; // fractional part
-  const i = Math.round(y * 8);
-  const bar = Array(x).fill("█").join("") + blocks[i];
-  const remaining = Array(length - bar.length)
-    .fill("░")
-    .join("");
-  return `${lsep}${bar}${!progressive ? remaining : ""}${rsep} ${Math.round(
-    Math.round(normalized_value * 100 * 100) / 100
+  const index = Math.round(y * 8);
+
+  const bar = Array.from({ length: x }, () => "█").join("") + blocks[index];
+  const remaining = Array.from({ length: length - bar.length }, () => "░").join(
+    "",
+  );
+
+  return `${lsep}${bar}${progressive ? "" : remaining}${rsep} ${Math.round(
+    Math.round(normalized_value * 100 * 100) / 100,
   )}%`;
 };
-
 // let prevStr = "";
 // for (let i = 0; i < 1000; i++) {
 //   prevStr =

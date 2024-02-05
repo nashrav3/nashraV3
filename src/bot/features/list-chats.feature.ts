@@ -25,19 +25,20 @@ feature.command(["l", "list"], logHandle("handle /list"), async (ctx) => {
     },
   });
 
-  if (!list.length) return ctx.reply(ctx.t("list.empty"));
-  let m = "";
-  for (let i = 0; i < list.length; i += 1) {
-    const item = list[i];
-    const { chat } = item;
-    const username = chat.username ? `- @${chat.username}` : "";
-    const name = chat.link
-      ? `<a href="${chat.link}">${escapeHTML(chat.name || "null")}</a>`
-      : chat.name;
-    m += `‎${item.index}. ${name} ${username}\n`;
-  }
+  if (list.length === 0) return ctx.reply(ctx.t("list.empty"));
 
-  await ctx.reply(m, { disable_web_page_preview: true });
+  const m = list
+    .map(({ index, chat }) => {
+      const { username, link, name } = chat;
+      const formattedName = link
+        ? `<a href="${link}">${escapeHTML(name || "null")}</a>`
+        : name;
+      const formattedUsername = username ? `- @${username}` : "";
+      return `‎${index}. ${formattedName} ${formattedUsername}`;
+    })
+    .join("\n");
+
+  await ctx.reply(m, { link_preview_options: { is_disabled: true } });
 });
 
 export { composer as listChatsFeature };

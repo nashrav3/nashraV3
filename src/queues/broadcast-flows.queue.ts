@@ -79,9 +79,8 @@ export function createBroadcastFlowsWorker({
               },
               take: config.BATCH_SIZE,
             });
-            const cursor = chats[chats.length - 1]
-              ? chats[chats.length - 1].id
-              : 0; // Use the last chat's ID as the new cursor
+            const lastChat = chats.at(-1);
+            const cursor = lastChat ? lastChat.id : 0; // Use the last chat's ID as the new cursor
 
             // eslint-disable-next-line no-loop-func
             const children = chats.map((chat) => {
@@ -119,22 +118,21 @@ export function createBroadcastFlowsWorker({
             break;
           }
           case Step.Second: {
+            const { cursor } = job.data;
             const chats = await prisma.botChat.findMany({
               take: config.BATCH_SIZE,
               skip: 1,
               cursor: {
-                id: job.data.cursor,
+                id: cursor,
               },
               where: { botId },
               orderBy: {
                 id: "asc",
               },
             });
-
-            const newCursor = chats[chats.length - 1]
-              ? chats[chats.length - 1].id
-              : 0; // Use the last chat's ID as the new cursor
-            chats.forEach((chat) => {
+            const lastChat = chats.at(-1);
+            const newCursor = lastChat ? lastChat.id : 0; // Use the last chat's ID as the new cursor
+            for (const chat of chats) {
               container.queues.broadcast.add(
                 `chatActionTyping`,
                 {
@@ -151,9 +149,9 @@ export function createBroadcastFlowsWorker({
                     queue: job.queueQualifiedName,
                   },
                   removeOnComplete: false,
-                }
+                },
               );
-            });
+            }
             await job.update({
               ...job.data,
               step: Step.Third,
@@ -195,7 +193,7 @@ export function createBroadcastFlowsWorker({
     },
     {
       connection,
-    }
+    },
   )
     .on("failed", handleError)
     .on("progress", broadcastFlowProgressHandler);

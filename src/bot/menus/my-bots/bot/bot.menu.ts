@@ -5,7 +5,7 @@ import { confirmDeleteBotMenu } from "./confirm-delete-bot/confirm-delete-bot.me
 import { groupSettingsMenu } from "./group-settings/group-settings.menu";
 
 export const botMenu = new MenuTemplate<Context>(
-  (ctx) => `You chose city ${ctx.match}`
+  (ctx) => `You chose city ${ctx.match}`,
 );
 
 botMenu.interact((ctx) => ctx.t("bot_menu.stats"), "stats", {
@@ -21,13 +21,13 @@ botMenu.submenu(
   broadcastOptionsMenu,
   {
     joinLastRow: true,
-  }
+  },
 );
 
 botMenu.submenu(
   (ctx) => ctx.t("bot_menu.group_settings"),
   "group",
-  groupSettingsMenu
+  groupSettingsMenu,
 );
 
 // botMenu.submenu((ctx) => ctx.t(`bot_menu.replies`), "replies", repliesMenu, {
@@ -42,12 +42,12 @@ botMenu.submenu(
 botMenu.submenu(
   (ctx) => ctx.t("bot_menu.delete_bot"),
   "delete",
-  confirmDeleteBotMenu
+  confirmDeleteBotMenu,
 );
 
 botMenu.manualRow(
   createBackMainMenuButtons(
     (ctx) => ctx.t(`bot_menu.back`),
-    (ctx) => ctx.t(`bot_menu.mainMenu`)
-  )
+    (ctx) => ctx.t(`bot_menu.mainMenu`),
+  ),
 );

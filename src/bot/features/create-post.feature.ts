@@ -26,10 +26,13 @@ const composer = new Composer<Context>();
 const feature = composer.chatType("private");
 
 feature.on(
-  "msg:forward_date",
+  "msg:forward_origin",
   logHandle("forwarded-createpost"),
   async (ctx) => {
-    const { msg } = ctx;
+    const { msg, me, prisma } = ctx;
+    if (msg.media_group_id)
+      return ctx.reply(ctx.t(`create-post.not-supported`));
+
     let fileId: string | undefined;
     const postType: PostType | undefined = [
       "animation",
@@ -43,8 +46,7 @@ feature.on(
       "text",
     ].find((type) => type in msg) as PostType | undefined;
 
-    if (!postType || msg.media_group_id)
-      return ctx.reply(ctx.t(`create-post.not-supported`));
+    if (!postType) return ctx.reply(ctx.t(`create-post.not-supported`));
 
     if (postType === "photo") fileId = msg.photo?.[0].file_id;
     else if (postType === "text") fileId = undefined;
@@ -55,6 +57,8 @@ feature.on(
     if (msg.caption) postOptions.caption = msg.caption;
     if (msg.caption_entities)
       postOptions.caption_entities = msg.caption_entities;
+    const { id: botId } = me;
+
     if (msg.entities) postOptions.entities = msg.entities;
     if (msg.has_media_spoiler) postOptions.has_spoiler = true;
 
@@ -65,20 +69,19 @@ feature.on(
       Prisma.PostUncheckedCreateInput = {
       postNumber: 0,
       chatId: ctx.from.id,
-      botId: ctx.me.id,
+      botId,
       type: postType,
     };
     if (msg.text) postData.text = msg.text;
     if (fileId) postData.fileId = fileId;
-    if (Object.keys(postOptions).length > 0)
-      postData.postOptions = JSON.stringify(postOptions);
-    if (ctx.msg.media_group_id) postData.mediaGroupId = ctx.msg.media_group_id;
+    const { media_group_id: mediaGroupId } = msg;
+    if (mediaGroupId) postData.mediaGroupId = mediaGroupId;
 
-    const newPost = await ctx.prisma.$transaction(
+    const newPost = await prisma.$transaction(
       async (tx) => {
         const bot = await tx.bot.update({
           where: {
-            botId: ctx.me.id,
+            botId,
           },
           data: {
             postNumberCounter: {
@@ -108,13 +111,13 @@ feature.on(
       },
       {
         isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
-      }
+      },
     );
 
     return newPost
       ? ctx.reply(`<code>/p ${newPost.postNumber}</code> created`)
       : ctx.reply("Error");
-  }
+  },
 );
 
 feature.command("createpost", logHandle("command-createpost"), async (ctx) => {

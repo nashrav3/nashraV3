@@ -35,16 +35,18 @@ myBotsMenu.chooseIntoSubmenu(
         },
       },
     });
-    return (
-      bots.reduce((acc, bot) => {
-        return { ...acc, [String(bot.botId)]: `@${bot.bot.username}` };
-      }, {}) || []
-    );
+
+    const result: { [key: string]: string } = {};
+    for (const bot of bots) {
+      result[String(bot.botId)] = `@${bot.bot.username}`;
+    }
+
+    return result;
   },
   botMenu,
   {
     columns: 2,
-  }
+  },
 );
 
 myBotsMenu.submenu((ctx) => ctx.t(`start_menu.add_bot`), "addbot", addBotMenu, {

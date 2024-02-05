@@ -221,7 +221,7 @@ export const getRandomEmojiString = (): string => {
   ];
   let randomEmojiString = "";
 
-  for (let i = 0; i < 3; i += 1) {
+  for (let index = 0; index < 3; index += 1) {
     const randomIndex = Math.floor(Math.random() * emojis.length);
     randomEmojiString += emojis[randomIndex];
   }

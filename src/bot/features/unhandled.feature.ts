@@ -3,7 +3,7 @@ import type { Context } from "~/bot/context";
 
 const composer = new Composer<Context>();
 
-const feature = composer.chatType("private");
+const _feature = composer.chatType("private");
 
 // feature.on("message", logHandle("unhandled-message"), (ctx) => {
 //   ctx.reply(ctx.t("unhandled"));

@@ -1,10 +1,11 @@
+import { BotCommand } from "@grammyjs/types";
 import { i18n } from "~/bot/i18n";
 
 export const DEFAULT_LANGUAGE_CODE = "en";
 
 if (!i18n.locales.includes(DEFAULT_LANGUAGE_CODE)) {
   throw new Error(
-    `Localization for default language code (${DEFAULT_LANGUAGE_CODE}) is missing`
+    `Localization for default language code (${DEFAULT_LANGUAGE_CODE}) is missing`,
   );
 }
 
@@ -12,7 +13,7 @@ export const getPrivateChatCommands = (options: {
   localeCode: string;
   includeLanguageCommand: boolean;
 }) => {
-  const commands = [
+  const commands: BotCommand[] = [
     {
       command: "start",
       description: i18n.t(options.localeCode, "start_command.description"),
@@ -33,7 +34,7 @@ export const getPrivateChatAdminCommands = (options: {
   localeCode: string;
   includeLanguageCommand: boolean;
 }) => {
-  const commands = [
+  const commands: BotCommand[] = [
     {
       command: "stats",
       description: i18n.t(options.localeCode, "stats_command.description"),
@@ -42,7 +43,7 @@ export const getPrivateChatAdminCommands = (options: {
       command: "setcommands",
       description: i18n.t(
         options.localeCode,
-        "setcommands_command.description"
+        "setcommands_command.description",
       ),
     },
   ];
@@ -50,6 +51,6 @@ export const getPrivateChatAdminCommands = (options: {
   return commands;
 };
 
-export const getGroupChatCommands = (options: { localeCode: string }) => {
+export const getGroupChatCommands = (_options: { localeCode: string }) => {
   return [];
 };

@@ -18,14 +18,14 @@ feature.on(
         botKicked: true,
       },
     });
-  }
+  },
 );
 
 feature
   .filter(matchFilter("my_chat_member"))
   .filter(
     (ctx) =>
-      ctx.update.my_chat_member.new_chat_member.status === "administrator"
+      ctx.update.my_chat_member.new_chat_member.status === "administrator",
   )
   .use(logHandle("chat_member bot admin status update handle"))
   .branch(
@@ -44,7 +44,7 @@ feature
             where: ctx.prisma.botChat.byBotIdChatId(botId, chatId),
             data: ctx.prisma.botChat.removeFromListNeedAdminRights(
               chatId,
-              botId
+              botId,
             ),
             include: {
               chat: true,
@@ -69,7 +69,7 @@ feature
           name: chat.name || "",
           link: chat.link || "",
           username: chat.username || "",
-        })
+        }),
       );
     },
     async (ctx) => {
@@ -94,10 +94,10 @@ feature
           name: chat.name || "",
           link: chat.link || "",
           username: chat.username || "",
-        })
+        }),
         // `the bot have been un-restricted from posting messages to ${botChat.chat.name} \n ${botChat.chat.link}\n ${botChat.chat.username}\n do you want to add it again to the list?`
       );
-    }
+    },
   );
 
 export { composer as chatMemberFeature };

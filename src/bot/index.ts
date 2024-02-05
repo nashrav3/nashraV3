@@ -27,7 +27,6 @@ import { isMultipleLocales } from "~/bot/i18n";
 import {
   abdoIgnoreOld,
   i18n,
-  metrics,
   session,
   setScope,
   updateLogger,
@@ -43,7 +42,7 @@ type Dependencies = {
 export const createBot = (
   token: string,
   { container, sessionStorage }: Dependencies,
-  botConfig?: Omit<BotConfig<Context>, "ContextConstructor">
+  botConfig?: Omit<BotConfig<Context>, "ContextConstructor">,
 ) => {
   const { config } = container;
   const bot = new TelegramBot(token, {
@@ -51,48 +50,44 @@ export const createBot = (
     ContextConstructor: createContextConstructor(container),
   });
 
+  const protectedBot = bot.errorBoundary(errorHandler);
   // Middlewares
-
   bot.api.config.use(parseMode("HTML"));
-
   if (config.isDev) {
-    bot.use(updateLogger());
+    protectedBot.use(updateLogger());
   }
-  bot.use(abdoIgnoreOld());
-  bot.use(setScope());
-  bot.use(metrics());
-  bot.use(autoChatAction(bot.api));
-  bot.use(hydrateReply);
-  bot.use(hydrate());
-  bot.use(session(sessionStorage));
-  bot.use(i18n());
-  bot.use(conversations());
-  bot.use(createPostConversation(container));
+  protectedBot.use(abdoIgnoreOld());
+  protectedBot.use(setScope());
+  protectedBot.use(autoChatAction(bot.api));
+  protectedBot.use(hydrateReply);
+  protectedBot.use(hydrate());
+  protectedBot.use(session(sessionStorage));
+  protectedBot.use(i18n());
+  protectedBot.use(conversations());
+  protectedBot.use(createPostConversation(container));
 
   // Handlers
 
-  bot.use(verifyChatFeature);
-  bot.use(addBotFeature);
-  bot.use(previewPostFeature);
-  bot.use(createPostFeature);
-  bot.use(addChannelFeature);
-  bot.use(removeChannelFeature);
-  bot.use(listChatsFeature);
-  bot.use(myBotsFeature);
-  bot.use(broadcastFeature);
-  bot.use(deleteFeature);
-  bot.use(sendToListFeature);
-  bot.use(statsFeature);
+  protectedBot.use(verifyChatFeature);
+  protectedBot.use(addBotFeature);
+  protectedBot.use(previewPostFeature);
+  protectedBot.use(createPostFeature);
+  protectedBot.use(addChannelFeature);
+  protectedBot.use(removeChannelFeature);
+  protectedBot.use(listChatsFeature);
+  protectedBot.use(myBotsFeature);
+  protectedBot.use(broadcastFeature);
+  protectedBot.use(deleteFeature);
+  protectedBot.use(sendToListFeature);
+  protectedBot.use(statsFeature);
   if (isMultipleLocales) {
-    bot.use(languageFeature);
+    protectedBot.use(languageFeature);
   }
-  bot.use(chatMemberFeature);
-  bot.use(setGroupFeature);
-  bot.use(unhandledFeature);
+  protectedBot.use(chatMemberFeature);
+  protectedBot.use(setGroupFeature);
 
-  if (config.isDev) {
-    bot.catch(errorHandler);
-  }
+  // must be the last handler
+  protectedBot.use(unhandledFeature);
 
   return bot;
 };

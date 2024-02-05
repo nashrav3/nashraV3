@@ -8,11 +8,11 @@ import { ConversationFlavor } from "@grammyjs/conversations";
 import { HydrateFlavor } from "@grammyjs/hydrate";
 import { I18nFlavor } from "@grammyjs/i18n";
 import { ParseModeFlavor } from "@grammyjs/parse-mode";
-import { ChatPayload } from "@prisma/client";
+import { Chat } from "@prisma/client";
 import { PrismaClientX } from "~/prisma";
 
 type ScopeChat = Omit<
-  ChatPayload<PrismaClientX["$extends"]["extArgs"]>["scalars"],
+  Chat,
   "updatedAt" | "createdAt" | "chatType" | "username" | "link"
 >;
 

@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/no-empty-file */
 // import { Context, ContextScopeWith } from "~/bot/context";
 
 // export const isAdminUser = <C extends Context>(

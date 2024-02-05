@@ -1,7 +1,8 @@
+/* eslint-disable unicorn/consistent-destructuring */
 import { Middleware } from "grammy";
 import type { Context } from "~/bot/context";
 
-export const setScope = (): Middleware<Context> => async (ctx, next) => {
+export const setScope: Middleware<Context> = async (ctx, next) => {
   if (ctx.from?.is_bot === false && ctx.chat) {
     const { language_code: languageCode, username: _username } = ctx.from;
     const { type: chatType, id: chatId } = ctx.chat;

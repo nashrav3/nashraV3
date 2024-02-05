@@ -29,37 +29,37 @@ export default Prisma.defineExtension({
             {
               OR: [
                 { botBlocked: { equals: false } },
-                { botBlocked: { equals: null } },
+                { botBlocked: { equals: undefined } },
               ],
             },
             {
               OR: [
                 { deactivated: { equals: false } },
-                { deactivated: { equals: null } },
+                { deactivated: { equals: undefined } },
               ],
             },
             {
               OR: [
                 { needAdminRights: { equals: false } },
-                { needAdminRights: { equals: null } },
+                { needAdminRights: { equals: undefined } },
               ],
             },
             {
               OR: [
                 { notFound: { equals: false } },
-                { notFound: { equals: null } },
+                { notFound: { equals: undefined } },
               ],
             },
             {
               OR: [
                 { notMember: { equals: false } },
-                { notMember: { equals: null } },
+                { notMember: { equals: undefined } },
               ],
             },
             {
               OR: [
                 { botKicked: { equals: false } },
-                { botKicked: { equals: null } },
+                { botKicked: { equals: undefined } },
               ],
             },
           ],

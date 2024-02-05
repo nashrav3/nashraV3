@@ -14,7 +14,7 @@ feature.command(
     const { id: botId, username: botUsername } = ctx.me;
 
     const matchResult = ctx.message.text.match(
-      /\s+(?<postNumber>\d+)(?=(?:.*\bat\s+(?<at>\d+(?::\d+)?\s*\S+))?)(?=(?:.*\bfor\s+(?<duration>\d+\s*\S+))?)(?=(?:.*\bafter\s+(?<after>\d+\s*\S+))?)(?=(?:.*\buntil\s+(?<until>\d+(?::\d+)?\s*\S+))?)/i
+      /\s+(?<postNumber>\d+)(?=(?:.*\bat\s+(?<at>\d+(?::\d+)?\s*\S+))?)(?=(?:.*\bfor\s+(?<duration>\d+\s*\S+))?)(?=(?:.*\bafter\s+(?<after>\d+\s*\S+))?)(?=(?:.*\buntil\s+(?<until>\d+(?::\d+)?\s*\S+))?)/i,
     );
     if (matchResult === null || !matchResult.groups?.postNumber) return; // TODO: reply with error message
 
@@ -29,10 +29,10 @@ feature.command(
     await ctx
       .reply(
         `post: ${postNumber}, at: ${ms(at)}, duration: ${ms(
-          duration
-        )}, until: ${ms(until)}, after: ${ms(after)}\n\n`
+          duration,
+        )}, until: ${ms(until)}, after: ${ms(after)}\n\n`,
       )
-      .catch((e) => ctx.reply(e));
+      .catch((error) => ctx.reply(error));
 
     const { token } = await ctx.prisma.bot.findUniqueOrThrow({
       where: ctx.prisma.bot.byBotId(botId),
@@ -74,9 +74,9 @@ feature.command(
             delay: delay ? delay + index * 200 : index * 200,
           },
         };
-      })
+      }),
     );
-  }
+  },
 );
 
 export { composer as deleteFeature };

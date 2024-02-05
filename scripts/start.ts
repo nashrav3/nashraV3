@@ -1,5 +1,6 @@
 #!/usr/bin/env tsx
 import { RedisAdapter } from "@grammyjs/storage-redis";
+import { onShutdown } from "node-graceful-shutdown";
 import { Job, Worker } from "bullmq";
 import { Bot, createBot } from "~/bot";
 import { createAppContainer } from "~/container";
@@ -38,27 +39,27 @@ try {
         return bot;
       },
     },
-    container
+    container,
   );
 
-  const handleWorkerError = (job: Job | undefined, err: Error) => {
+  const handleWorkerError = (job: Job | undefined, error: Error) => {
     logger.error({
       msg: "job failed",
       job_id: job?.id,
       job_name: job?.name,
       queue: job?.queueName,
-      err,
+      err: error,
     });
   };
 
   const workers: Worker[] = [];
 
-  // Graceful shutdown
-  prisma.$on("beforeExit", async () => {
+  //  Graceful shutdown
+  onShutdown(async () => {
     logger.info("shutdown");
 
-    await Promise.all(Object.values(bots).map((bot: Bot) => bot.stop()));
     await server.close();
+    await Promise.all(Object.values(bots).map((bot: Bot) => bot.stop()));
   });
 
   await prisma.$connect();
@@ -69,44 +70,33 @@ try {
       handleError: handleWorkerError,
       prisma,
       container,
-    })
-  );
-
-  workers.push(
+    }),
     createBroadcastWorker({
       connection: redis,
       handleError: handleWorkerError,
       prisma,
       container,
-    })
-  );
-
-  workers.push(
+    }),
     createBroadcastFlowsWorker({
       connection: redis,
       handleError: handleWorkerError,
       prisma,
       container,
-    })
-  );
-
-  workers.push(
+    }),
     createListFlowWorker({
       connection: redis,
       handleError: handleWorkerError,
       prisma,
       container,
-    })
-  );
-
-  workers.push(
+    }),
     createDeleteWorker({
       connection: redis,
       handleError: handleWorkerError,
       prisma,
       container,
-    })
+    }),
   );
+
   // update bot owner role
   await prisma.chat.upsert({
     where: prisma.chat.byChatId(config.BOT_ADMIN_USER_ID),
@@ -124,7 +114,7 @@ try {
     host: config.BOT_SERVER_HOST,
     port: config.BOT_SERVER_PORT,
   });
-} catch (err) {
-  container.logger.error(err);
+} catch (error) {
+  container.logger.error(error);
   process.exit(1);
 }

@@ -21,7 +21,8 @@ feature.command("v", logHandle("command-verify"), async (ctx) => {
     select: { token: true },
   });
   const statusMessage = await ctx.reply(ctx.t("please-wait"));
-  chats.forEach((chat) => {
+  for (let index = 0; index < chats.length; index += 1) {
+    const chat = chats[index];
     queues.verifyChat.add(
       `verifyChat:${ctx.me.username}:${chat.chatId}`,
       {
@@ -30,15 +31,15 @@ feature.command("v", logHandle("command-verify"), async (ctx) => {
         languageCode: ctx.scope.chat?.languageCode || undefined,
         statusMessageId: statusMessage.message_id,
         statusMessageChatId: statusMessage.chat.id,
-        doneCount: chats.indexOf(chat) + 1,
+        doneCount: index + 1,
         totalCount: chats.length,
         username: chat.chat.username ? `@${chat.chat.username}` : undefined,
       },
       {
-        delay: 200 * chats.indexOf(chat),
-      }
+        delay: 200 * index,
+      },
     );
-  });
+  }
 });
 
 export { composer as verifyChatFeature };

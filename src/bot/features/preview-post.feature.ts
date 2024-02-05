@@ -12,7 +12,7 @@ feature.command(
   logHandle("preview-post"),
   chatAction("typing"),
   async (ctx) => {
-    const postNumber = parseInt(ctx.match, 10);
+    const postNumber = Number.parseInt(ctx.match, 10);
     const post = await ctx.prisma.post.findFirst({
       where: {
         botId: ctx.me.id,
@@ -35,7 +35,7 @@ feature.command(
     if (type === "animation")
       return ctx.replyWithAnimation(fileId, postOptions);
     if (type === "voice") return ctx.replyWithVoice(fileId, postOptions);
-  }
+  },
 );
 
 export { composer as previewPostFeature };

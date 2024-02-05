@@ -2,7 +2,7 @@ import { MenuTemplate, createBackMainMenuButtons } from "grammy-inline-menu";
 import { Context } from "~/bot/context";
 
 export const broadcastOptionsMenu = new MenuTemplate<Context>((ctx) =>
-  ctx.t(`broadcast_menu.messageText`)
+  ctx.t(`broadcast_menu.messageText`),
 );
 
 broadcastOptionsMenu.interact(
@@ -13,7 +13,7 @@ broadcastOptionsMenu.interact(
       await ctx.answerCallbackQuery("not implemented yet");
       return false;
     },
-  }
+  },
 );
 
 broadcastOptionsMenu.interact(
@@ -24,7 +24,7 @@ broadcastOptionsMenu.interact(
       await ctx.answerCallbackQuery("not implemented yet");
       return false;
     },
-  }
+  },
 );
 
 broadcastOptionsMenu.toggle(
@@ -36,11 +36,11 @@ broadcastOptionsMenu.toggle(
       ctx.session.broadcastNotifyUsers = newState;
       return true;
     },
-  }
+  },
 );
 broadcastOptionsMenu.manualRow(
   createBackMainMenuButtons(
     (ctx) => ctx.t(`bot_menu.back`),
-    (ctx) => ctx.t(`bot_menu.mainMenu`)
-  )
+    (ctx) => ctx.t(`bot_menu.mainMenu`),
+  ),
 );

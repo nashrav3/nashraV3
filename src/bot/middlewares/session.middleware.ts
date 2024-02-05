@@ -3,7 +3,7 @@ import type { Context } from "~/bot/context";
 
 type ContextWithoutSession = Omit<Context, "session">;
 export const session = (
-  storage: StorageAdapter<unknown>
+  storage: StorageAdapter<unknown>,
 ): Middleware<Context> =>
   createSession({
     initial: () => ({}),

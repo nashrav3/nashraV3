@@ -12,7 +12,7 @@ export const groupSettingsMenu = new MenuTemplate<Context>(async (ctx) => {
   // try {
   if (groupId) {
     const adminsGroup = (await getBotChat(token, Number(groupId)).catch(
-      () => false
+      () => false,
     )) as Extract<ChatFromGetChat, { type: "supergroup" }>;
     if (adminsGroup) {
       const { title, invite_link: inviteLink, username } = adminsGroup;
@@ -40,7 +40,7 @@ export const groupSettingsMenu = new MenuTemplate<Context>(async (ctx) => {
 
 groupSettingsMenu.url(
   (ctx) => ctx.t(`set_group.how_to_set`),
-  (ctx) => ctx.t(`set_group.how_to_set_url`)
+  (ctx) => ctx.t(`set_group.how_to_set_url`),
 );
 
 groupSettingsMenu.url(
@@ -48,7 +48,7 @@ groupSettingsMenu.url(
   (ctx) => ctx.t(`set_group.how_to_change_url`),
   {
     joinLastRow: true,
-  }
+  },
 );
 
 // groupSettingsMenu.submenu(
@@ -63,6 +63,6 @@ groupSettingsMenu.url(
 groupSettingsMenu.manualRow(
   createBackMainMenuButtons(
     (ctx) => ctx.t(`bot_menu.back`),
-    (ctx) => ctx.t(`bot_menu.mainMenu`)
-  )
+    (ctx) => ctx.t(`bot_menu.mainMenu`),
+  ),
 );

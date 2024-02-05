@@ -14,7 +14,7 @@ feature.command(
   chatAction("typing"),
   async (ctx) => {
     const { id: botId, username: botUsername } = ctx.me;
-    const postNumber = parseInt(ctx.match, 10);
+    const postNumber = Number.parseInt(ctx.match, 10);
     const post = await ctx.prisma.post.findFirst({
       where: ctx.prisma.post.byPostNumber(postNumber, botId),
       select: ctx.prisma.post.postSelectValues(),
@@ -38,7 +38,8 @@ feature.command(
       },
       take: config.BATCH_SIZE,
     });
-    const cursor = chats[chats.length - 1] ? chats[chats.length - 1].id : 0; // Use the last chat's ID as the new cursor
+    const lastChat = chats.at(-1);
+    const cursor = lastChat ? lastChat.id : 0; // Use the last chat's ID as the new cursor
 
     const children = chats.map((chat) => {
       return {
@@ -50,9 +51,9 @@ feature.command(
           cursor,
           post: {
             // to remove unnecesary null values in job data
-            text: post.text ? post.text : undefined,
-            fileId: post.fileId ? post.fileId : undefined,
-            postOptions: post.postOptions ? post.postOptions : undefined,
+            text: post.text ?? undefined,
+            fileId: post.fileId ?? undefined,
+            postOptions: post.postOptions ?? undefined,
           }, // TODO: all jobs in a flow have same post so make it in one place and make jobs able to access it to save memory
         },
         queueName: "broadcast",
@@ -79,7 +80,7 @@ feature.command(
         attempts: 1000,
       },
     });
-  }
+  },
 );
 
 export { composer as broadcastFeature };
