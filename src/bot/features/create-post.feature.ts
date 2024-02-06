@@ -71,6 +71,7 @@ feature.on(
       chatId: ctx.from.id,
       botId,
       type: postType,
+      postOptions: JSON.stringify(postOptions),
     };
     if (msg.text) postData.text = msg.text;
     if (fileId) postData.fileId = fileId;

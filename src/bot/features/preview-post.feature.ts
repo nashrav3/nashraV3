@@ -5,7 +5,7 @@ import { logHandle } from "../helpers/logging";
 
 const composer = new Composer<Context>();
 
-const feature = composer.chatType("private");
+const feature = composer.chatType(["group", "supergroup", "private"]);
 
 feature.command(
   ["preview", "p"],
