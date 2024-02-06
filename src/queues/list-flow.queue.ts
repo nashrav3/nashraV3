@@ -119,7 +119,7 @@ export function createListFlowWorker({
               };
             });
             await container.queues.broadcast.addBulk(children);
-            await job.update({
+            await job.updateData({
               ...job.data,
               step: Step.Second,
             });
@@ -161,7 +161,7 @@ export function createListFlowWorker({
                 },
               );
             }
-            await job.update({
+            await job.updateData({
               ...job.data,
               step: Step.Third,
               cursor: newCursor, // Update the cursor for the next iteration
@@ -173,7 +173,7 @@ export function createListFlowWorker({
             const shouldWait = await job.moveToWaitingChildren(saidToken);
             if (!shouldWait) {
               job.updateProgress({ ok: true, finished: true });
-              await job.update({
+              await job.updateData({
                 ...job.data,
                 step: Step.Finish,
               });
@@ -189,7 +189,7 @@ export function createListFlowWorker({
               step = Step.Finish;
               return Step.Finish;
             }
-            await job.update({
+            await job.updateData({
               ...job.data,
               doneCount: doneCount + config.BATCH_SIZE,
               step: Step.Second,
@@ -267,7 +267,7 @@ export function createListFlowWorker({
                   reply_markup: keyboard,
                 },
               );
-              job.update({
+              job.updateData({
                 ...job.data,
                 statusMessageId: statusMessage.message_id,
               });

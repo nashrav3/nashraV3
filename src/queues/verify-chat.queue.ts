@@ -87,7 +87,7 @@ export function createVerifyChatWorker({
         .then(async (chat) => {
           if (!chat || chat.type === "private" || chat.type === "group") return;
           commonData.where.botId_chatId.chatId = chat.id; // mutate chatid from 0 to actual chat id if username was provided TODO: fix
-          await job.update({
+          await job.updateData({
             ...job.data,
             chatId: chat.id,
           });
@@ -299,7 +299,7 @@ export function createVerifyChatWorker({
                     parse_mode: "HTML",
                   },
                 );
-                job.update({
+                job.updateData({
                   ...job.data,
                   statusMessageId: statusMessage.message_id,
                 });

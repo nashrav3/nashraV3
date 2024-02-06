@@ -38,7 +38,7 @@ export const broadcastFlowProgressHandler = async (
             parse_mode: "HTML",
           },
         );
-        job.update({
+        job.updateData({
           ...job.data,
           statusMessageId: statusMessage.message_id,
         });
