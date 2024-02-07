@@ -1,7 +1,7 @@
 import { Composer } from "grammy";
-import { Context } from "../context";
-import { escapeHTML } from "../helpers/escape-html.js";
-import { logHandle } from "../helpers/logging.js";
+import { Context } from "../../context.js";
+import { escapeHTML } from "../../helpers/escape-html.js";
+import { logHandle } from "../../helpers/logging.js";
 
 const composer = new Composer<Context>();
 const feature = composer.chatType(["group", "supergroup"]);

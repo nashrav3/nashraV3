@@ -1,9 +1,9 @@
 import { chatAction } from "@grammyjs/auto-chat-action";
 import { Composer } from "grammy";
 import type { Context } from "~/bot/context";
-import { isPremiumBot } from "../helpers/compare-datetime";
-import { escapeHTML } from "../helpers/escape-html";
-import { logHandle } from "../helpers/logging";
+import { isPremiumBot } from "../../helpers/compare-datetime";
+import { escapeHTML } from "../../helpers/escape-html";
+import { logHandle } from "../../helpers/logging";
 
 const composer = new Composer<Context>();
 

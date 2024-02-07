@@ -1,6 +1,6 @@
 import { Composer, matchFilter } from "grammy";
 import type { Context } from "~/bot/context";
-import { logHandle } from "../helpers/logging";
+import { logHandle } from "../../helpers/logging";
 
 const composer = new Composer<Context>();
 

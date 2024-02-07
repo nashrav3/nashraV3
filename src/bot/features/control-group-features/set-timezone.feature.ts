@@ -1,7 +1,7 @@
 /* eslint-disable no-await-in-loop */
 import { Composer } from "grammy";
-import { Context } from "../context.js";
-import { logHandle } from "../helpers/logging.js";
+import { Context } from "../../context.js";
+import { logHandle } from "../../helpers/logging.js";
 
 const composer = new Composer<Context>();
 const feature = composer.chatType(["group", "supergroup"]);

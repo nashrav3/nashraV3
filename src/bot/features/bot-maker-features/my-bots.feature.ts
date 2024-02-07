@@ -1,8 +1,8 @@
 import { Composer } from "grammy";
 import { MenuMiddleware, MenuTemplate } from "grammy-inline-menu";
-import { Context } from "../context";
-import { addBotMenu } from "../menus/add-bot/add-bot.menu";
-import { myBotsMenu } from "../menus/my-bots/my-bots.menu";
+import { Context } from "../../context";
+import { addBotMenu } from "../../menus/add-bot/add-bot.menu";
+import { myBotsMenu } from "../../menus/my-bots/my-bots.menu";
 
 // TODO: seperate these menus into files in /menus
 

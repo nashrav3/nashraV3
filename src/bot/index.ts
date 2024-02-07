@@ -32,7 +32,7 @@ import {
   updateLogger,
 } from "~/bot/middlewares";
 import type { Container } from "~/container";
-import { deleteFeature } from "./features/delete-post.feature";
+import { deleteFeature } from "./features/control-group-features/delete-post.feature";
 
 type Dependencies = {
   container: Container;

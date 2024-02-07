@@ -2,7 +2,7 @@ import { chatAction } from "@grammyjs/auto-chat-action";
 import { Bot, Composer } from "grammy";
 import type { Context } from "~/bot/context";
 import { config } from "~/config";
-import { logHandle } from "../helpers/logging";
+import { logHandle } from "../../helpers/logging";
 
 const composer = new Composer<Context>();
 

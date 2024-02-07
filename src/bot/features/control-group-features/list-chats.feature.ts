@@ -1,8 +1,8 @@
 /* eslint-disable no-await-in-loop */
 import { Composer } from "grammy";
-import { Context } from "../context";
-import { escapeHTML } from "../helpers/escape-html";
-import { logHandle } from "../helpers/logging";
+import { Context } from "../../context";
+import { escapeHTML } from "../../helpers/escape-html";
+import { logHandle } from "../../helpers/logging";
 
 const composer = new Composer<Context>();
 const feature = composer.chatType(["group", "supergroup"]);

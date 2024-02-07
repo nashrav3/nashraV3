@@ -8,7 +8,7 @@
     "allowImportingTsExtensions": true,
     "module": "ES2022",
     "target": "ES2021",
-    "moduleResolution": "bundler",
+    "moduleResolution": "Bundler",
     "sourceMap": true,
     "outDir": "dist",
     "baseUrl": ".",
