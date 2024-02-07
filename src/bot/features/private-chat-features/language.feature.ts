@@ -8,8 +8,12 @@ import { createChangeLanguageKeyboard } from "~/bot/keyboards";
 const composer = new Composer<Context>();
 
 const feature = composer.chatType("private");
+const changeLanguageButtons = i18n.locales.map((locale) =>
+  i18n.t(locale, "start-private-keyboard.change-language"),
+);
+const triggers = [...changeLanguageButtons, "/lang", "/language"];
 
-feature.command("language", logHandle("command-language"), async (ctx) =>
+feature.hears(triggers, logHandle("command-language"), async (ctx) =>
   ctx.reply(ctx.t("language.select"), {
     reply_markup: await createChangeLanguageKeyboard(ctx),
   }),

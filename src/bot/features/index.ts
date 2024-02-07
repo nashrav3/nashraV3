@@ -13,3 +13,4 @@ export * from "./control-group-features/set-group.feature";
 export * from "./control-group-features/stats.feature";
 export * from "./unhandled.feature";
 export * from "./control-group-features/verify-chat.feature";
+export * from "./private-chat-features/start-private.feature";

@@ -143,3 +143,12 @@ stats =
     control group: {$controlGroup}
     is premium?: {$isPremium}
     expire at: {$expireAt}
+
+start-private =
+    .text = اهلا بك في البوت اختر احد الخيارات ادناه
+start-private-keyboard =
+    .create-post = صنع منشور
+    .edit-post = تعديل منشور
+    .instructions = التعليمات
+    .change-language = تغيير اللغة
+    .create-your-own-bot = اصنع بوتك الخاص

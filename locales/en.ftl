@@ -195,3 +195,11 @@ stats =
     is premium?: {$isPremium}
     expire at: {$expireAt}
 
+start-private =
+    .text = Welcome to the bot, you can use the following commands
+start-private-keyboard =
+    .create-post = create post
+    .edit-post = edit post
+    .instructions = instructions
+    .change-language = change language
+    .create-your-own-bot = create your own bot

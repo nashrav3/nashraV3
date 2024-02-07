@@ -18,6 +18,7 @@ import {
   removeChannelFeature,
   sendToListFeature,
   setGroupFeature,
+  startPrivateFeature,
   statsFeature,
   unhandledFeature,
   verifyChatFeature,
@@ -67,7 +68,7 @@ export const createBot = (
   protectedBot.use(createPostConversation(container));
 
   // Handlers
-
+  protectedBot.use(startPrivateFeature);
   protectedBot.use(verifyChatFeature);
   protectedBot.use(addBotFeature);
   protectedBot.use(previewPostFeature);

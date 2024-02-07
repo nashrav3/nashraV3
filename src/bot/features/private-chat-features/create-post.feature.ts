@@ -22,6 +22,12 @@ interface PostOptions {
   has_spoiler?: boolean;
 }
 
+type PostDataInput = Prisma.Without<
+  Prisma.PostCreateInput,
+  Prisma.PostUncheckedCreateInput
+> &
+  Prisma.PostUncheckedCreateInput;
+
 const composer = new Composer<Context>();
 const feature = composer.chatType("private");
 
@@ -62,11 +68,7 @@ feature.on(
     if (msg.entities) postOptions.entities = msg.entities;
     if (msg.has_media_spoiler) postOptions.has_spoiler = true;
 
-    const postData: Prisma.Without<
-      Prisma.PostCreateInput,
-      Prisma.PostUncheckedCreateInput
-    > &
-      Prisma.PostUncheckedCreateInput = {
+    const postData: PostDataInput = {
       postNumber: 0,
       chatId: ctx.from.id,
       botId,
@@ -75,8 +77,6 @@ feature.on(
     };
     if (msg.text) postData.text = msg.text;
     if (fileId) postData.fileId = fileId;
-    const { media_group_id: mediaGroupId } = msg;
-    if (mediaGroupId) postData.mediaGroupId = mediaGroupId;
 
     const newPost = await prisma.$transaction(
       async (tx) => {
@@ -97,16 +97,6 @@ feature.on(
             ...postData,
             postNumber: newPostNumber,
           },
-          // {
-          //   chatId: ctx.from.id,
-          //   postNumber: newPostNumber,
-          //   botId: ctx.me.id,
-          //   type: postType,
-          //   text: ctx.message.text,
-          //   fileId,
-          //   mediaGroupId: ctx.message.media_group_id,
-          //   postOptions: JSON.stringify(postOptions),
-          // }
         });
         return post;
       },
