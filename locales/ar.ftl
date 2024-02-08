@@ -132,20 +132,21 @@ broadcast-status-keyboard =
     .resend = حذف وارسال
 
 stats =
-    .stats = bot stats
-    users: {$usersCount}
-    posts: {$postsCount}
-    channels: {$channelsCount}
-    groups: {$groupsCount}
-    owner: {$owner}
-    posts in channels: {$postsInChannels}
-    channels in list: {$listChannelsCount}
-    control group: {$controlGroup}
-    is premium?: {$isPremium}
-    expire at: {$expireAt}
+    .stats = معلومات البوت
+    المستخدمون: {$usersCount}
+    المنشورات: {$postsCount}
+    القنوات: {$channelsCount}
+    المجموعات: {$groupsCount}
+    المالك: {$owner}
+    المنشورات في القنوات: {$postsInChannels}
+    القنوات في القائمة: {$listChannelsCount}
+    المجموعة التحكم: {$controlGroup}
+    مدفوع؟: {$isPremium}
+    ينتهي في: {$expireAt}
 
 start-private =
     .text = اهلا بك في البوت اختر احد الخيارات ادناه
+    .create-post-button-reply = قم بتحويل اي رسالة هنا وساقوم بجعلها منشور
 start-private-keyboard =
     .create-post = صنع منشور
     .edit-post = تعديل منشور

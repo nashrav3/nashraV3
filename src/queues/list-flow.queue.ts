@@ -13,6 +13,11 @@ import { config } from "~/config";
 import type { Container } from "~/container";
 import type { PrismaClientX } from "~/prisma";
 
+// Define constants for magic strings
+const ERROR_JOB_NO_ID = "job has no Id!";
+const ERROR_SAID_TOKEN_REQUIRED = "saidToken is required!";
+const ERROR_INVALID_STEP = "invalid step";
+const ERROR_PROGRESS_NOT_OBJECT = "progress is not object!";
 // eslint-disable-next-line no-shadow
 enum Step {
   Initial,
@@ -57,6 +62,143 @@ export function createListFlowQueue({ connection }: { connection: Redis }) {
   });
 }
 
+async function handleInitialStep(
+  job: Job<ListFlowData>,
+  prisma: PrismaClientX,
+  container: Container,
+) {
+  const { id: botId, username: botUsername } = job.data.botInfo;
+  const { token, post } = job.data;
+  const chats = await prisma.list.findMany({
+    where: { botId },
+    orderBy: {
+      id: "asc",
+    },
+    take: config.BATCH_SIZE,
+  });
+  const lastChat = chats.at(-1);
+  const cursor = lastChat ? lastChat.id : 0; // Use the last chat's ID as the new cursor
+
+  // eslint-disable-next-line no-loop-func
+  const children = chats.map((chat) => {
+    return {
+      name: `BC:${botUsername}:${chat.chatId}`,
+      data: {
+        chatId: Number(chat.chatId),
+        token,
+        serialId: chat.id,
+        cursor,
+        post: {
+          postId: post.postId,
+          type: post.type,
+          text: post.text,
+          fileId: post.fileId,
+          postOptions: post.postOptions,
+        },
+      },
+      opts: {
+        delay: 100 * chats.indexOf(chat),
+        parent: {
+          id: job.id || "!!!!!!!!!!!!!!!!!!!",
+          queue: job.queueQualifiedName,
+        },
+        removeOnComplete: false,
+      },
+    };
+  });
+  await container.queues.broadcast.addBulk(children);
+  await job.updateData({
+    ...job.data,
+    step: Step.Second,
+  });
+}
+
+async function handleSecondStep(
+  job: Job<ListFlowData>,
+  prisma: PrismaClientX,
+  container: Container,
+) {
+  const { id: botId } = job.data.botInfo;
+  const { cursor, token, post } = job.data;
+  const chats = await prisma.list.findMany({
+    take: config.BATCH_SIZE,
+    skip: 1,
+    cursor: {
+      id: cursor,
+    },
+    where: { botId },
+    orderBy: {
+      id: "asc",
+    },
+  });
+  const lastChat = chats.at(-1);
+  const newCursor = lastChat ? lastChat.id : 0; // Use the last chat's ID as the new cursor
+  for (const chat of chats) {
+    container.queues.broadcast.add(
+      `chatActionTyping`,
+      {
+        chatId: Number(chat.chatId),
+        serialId: chat.id,
+        cursor: newCursor,
+        token,
+        post,
+      },
+      {
+        delay: 100 * chats.indexOf(chat),
+        parent: {
+          id: job.id || "!!!!!!!!!!!!!!!!!!!!!!!!!!!!",
+          queue: job.queueQualifiedName,
+        },
+        removeOnComplete: false,
+      },
+    );
+  }
+  await job.updateData({
+    ...job.data,
+    step: Step.Third,
+    cursor: newCursor, // Update the cursor for the next iteration
+  });
+}
+
+async function handleThirdStep(
+  job: Job<ListFlowData>,
+  prisma: PrismaClientX,
+  container: Container,
+  saidToken: string,
+) {
+  const { totalCount, doneCount } = job.data;
+  const shouldWait = await job.moveToWaitingChildren(saidToken);
+  if (!shouldWait) {
+    job.updateProgress({ ok: true, finished: true });
+    await job.updateData({
+      ...job.data,
+      step: Step.Finish,
+    });
+    await prisma.flow.updateMany({
+      // TODO: don't use update many
+      where: {
+        jobId: job.id,
+      },
+      data: {
+        finished: true,
+      },
+    });
+    return Step.Finish;
+  }
+  await job.updateData({
+    ...job.data,
+    doneCount: doneCount + config.BATCH_SIZE,
+    step: Step.Second,
+  });
+  job.updateProgress({
+    ok: true,
+    finished: false,
+    doneCount,
+    totalCount,
+  });
+  throw new WaitingChildrenError();
+}
+
 export function createListFlowWorker({
   connection,
   prisma,
@@ -71,140 +213,30 @@ export function createListFlowWorker({
   return new Worker<ListFlowData>(
     queueName,
     async (job, saidToken) => {
-      if (!saidToken) return new Error("saidToken is required!");
-      if (!job.id) return new Error("job has no Id!");
-
-      const { id: botId, username: botUsername } = job.data.botInfo;
-      const { token, post, totalCount, doneCount } = job.data;
+      if (!saidToken) return new Error(ERROR_SAID_TOKEN_REQUIRED);
+      if (!job.id) return new Error(ERROR_JOB_NO_ID);
 
       let { step } = job.data;
       while (step !== Step.Finish) {
         switch (step) {
           case Step.Initial: {
-            const chats = await prisma.list.findMany({
-              where: { botId },
-              orderBy: {
-                id: "asc",
-              },
-              take: config.BATCH_SIZE,
-            });
-            const lastChat = chats.at(-1);
-            const cursor = lastChat ? lastChat.id : 0; // Use the last chat's ID as the new cursor
-
-            // eslint-disable-next-line no-loop-func
-            const children = chats.map((chat) => {
-              return {
-                name: `BC:${botUsername}:${chat.chatId}`,
-                data: {
-                  chatId: Number(chat.chatId),
-                  token,
-                  serialId: chat.id,
-                  cursor,
-                  post: {
-                    postId: post.postId,
-                    type: post.type,
-                    text: post.text,
-                    fileId: post.fileId,
-                    postOptions: post.postOptions,
-                  },
-                },
-                opts: {
-                  delay: 100 * chats.indexOf(chat),
-                  parent: {
-                    id: job.id || "!!!!!!!!!!!!!!!!!!!",
-                    queue: job.queueQualifiedName,
-                  },
-                  removeOnComplete: false,
-                },
-              };
-            });
-            await container.queues.broadcast.addBulk(children);
-            await job.updateData({
-              ...job.data,
-              step: Step.Second,
-            });
+            await handleInitialStep(job, prisma, container);
             step = Step.Second;
             break;
           }
+
           case Step.Second: {
-            const { cursor } = job.data;
-            const chats = await prisma.list.findMany({
-              take: config.BATCH_SIZE,
-              skip: 1,
-              cursor: {
-                id: cursor,
-              },
-              where: { botId },
-              orderBy: {
-                id: "asc",
-              },
-            });
-            const lastChat = chats.at(-1);
-            const newCursor = lastChat ? lastChat.id : 0; // Use the last chat's ID as the new cursor
-            for (const chat of chats) {
-              container.queues.broadcast.add(
-                `chatActionTyping`,
-                {
-                  chatId: Number(chat.chatId),
-                  serialId: chat.id,
-                  cursor: newCursor,
-                  token: job.data.token,
-                  post: job.data.post,
-                },
-                {
-                  delay: 100 * chats.indexOf(chat),
-                  parent: {
-                    id: job.id || "!!!!!!!!!!!!!!!!!!!!!!!!!!!!",
-                    queue: job.queueQualifiedName,
-                  },
-                  removeOnComplete: false,
-                },
-              );
-            }
-            await job.updateData({
-              ...job.data,
-              step: Step.Third,
-              cursor: newCursor, // Update the cursor for the next iteration
-            });
+            handleSecondStep(job, prisma, container);
             step = Step.Third;
             break;
           }
+
           case Step.Third: {
-            const shouldWait = await job.moveToWaitingChildren(saidToken);
-            if (!shouldWait) {
-              job.updateProgress({ ok: true, finished: true });
-              await job.updateData({
-                ...job.data,
-                step: Step.Finish,
-              });
-              await prisma.flow.updateMany({
-                // TODO: don't use update many
-                where: {
-                  jobId: job.id,
-                },
-                data: {
-                  finished: true,
-                },
-              });
-              step = Step.Finish;
-              return Step.Finish;
-            }
-            await job.updateData({
-              ...job.data,
-              doneCount: doneCount + config.BATCH_SIZE,
-              step: Step.Second,
-            });
-            job.updateProgress({
-              ok: true,
-              finished: false,
-              doneCount: job.data.doneCount,
-              totalCount,
-            });
-            step = Step.Second;
-            throw new WaitingChildrenError();
+            step = await handleThirdStep(job, prisma, container, saidToken);
+            break;
           }
           default: {
-            throw new Error("invalid step");
+            throw new Error(ERROR_INVALID_STEP);
           }
         }
       }
@@ -218,9 +250,9 @@ export function createListFlowWorker({
       "progress",
       async (job: Job<ListFlowData>, progress: object | number) => {
         const jobId = job.id;
-        if (!jobId) throw new Error("job has no Id!");
+        if (!jobId) throw new Error(ERROR_JOB_NO_ID);
         if (typeof progress !== "object")
-          throw new Error("progress is not object!");
+          throw new Error(ERROR_PROGRESS_NOT_OBJECT);
         const pgs = progress as progressData;
         const {
           chatId,

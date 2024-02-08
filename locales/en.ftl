@@ -197,6 +197,7 @@ stats =
 
 start-private =
     .text = Welcome to the bot, you can use the following commands
+    .create-post-button-reply = forward a message here to create a post
 start-private-keyboard =
     .create-post = create post
     .edit-post = edit post
